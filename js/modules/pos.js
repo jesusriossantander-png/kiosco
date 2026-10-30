@@ -134,7 +134,7 @@ const POS = (() => {
       const top = Object.entries(cnt).sort((a, b) => b[1] - a[1]).map(([id]) => DB.prod(id)).filter(p => p && !fav.includes(p));
       list = fav.concat(top).slice(0, 12);
     }
-    $('#pos-quick', el).innerHTML = list.length ? list.map(p => `<button data-p="${p.id}"><span>${DB.emoji(p)}</span><b>${esc(p.nombre)}</b><small>${fmt(DB.precio(p, cart.lista))}</small></button>`).join('') : '<p class="muted small">Marcá productos como "favoritos" para verlos acá.</p>';
+    $('#pos-quick', el).innerHTML = list.length ? list.map(p => `<button data-p="${p.id}"><img src="${esc(DB.foto(p))}" alt="" loading="lazy"><b>${esc(p.nombre)}</b><small>${DB.ofertaActiva(p) && cart.lista === 0 ? '🔥 ' : ''}${fmt(DB.precio(p, cart.lista))}</small></button>`).join('') : '<p class="muted small">Marcá productos como "favoritos" para verlos acá.</p>';
   }
 
   function elegirCliente() {

@@ -32,6 +32,11 @@ const Productos = (() => {
       </div>
       <div class="grid5">${cfg.listas.map((n, i) => `<label><span>${esc(n)}</span><input name="p${i}" data-num inputmode="decimal" value="${p.precios[i] || ''}"></label>`).join('')}</div>
       <div class="grid3">
+        <label><span>Precio de oferta (opcional)</span><input name="ofPrecio" data-num inputmode="decimal" value="${p.oferta && p.oferta.precio || ''}" placeholder="Se muestra tachado el precio normal"></label>
+        <label><span>Oferta válida hasta</span><input type="date" name="ofHasta" value="${esc(p.oferta && p.oferta.hasta || '')}"></label>
+        <label><span>Descuento</span><input id="pf-desc" disabled></label>
+      </div>
+      <div class="grid3">
         <label><span>Stock góndola</span><input name="stock" data-num inputmode="decimal" value="${p.stock || 0}" ${nuevo ? '' : 'disabled title="Usá Stock → Ajuste para modificarlo"'}></label>
         <label><span>Stock depósito</span><input name="stockDeposito" data-num inputmode="decimal" value="${p.stockDeposito || 0}" ${nuevo ? '' : 'disabled'}></label>
         <label><span>Stock mínimo (alerta)</span><input name="stockMin" data-num inputmode="decimal" value="${p.stockMin || 0}"></label>
@@ -42,7 +47,11 @@ const Productos = (() => {
         <label><span>PLU balanza</span><input name="plu" value="${esc(p.plu || '')}" inputmode="numeric" placeholder="00001"></label>
         <label><span>Emoji o ícono</span><input name="emoji" value="${esc(p.emoji || '')}" placeholder="${DB.emoji(p)}" maxlength="4"></label>
       </div>
-      <label><span>Imagen (URL, opcional — se ve en la app de clientes)</span><input name="imagen" value="${esc(p.imagen || '')}" placeholder="https://…"></label>
+      <div class="foto-box"><img id="pf-img" src="${esc(DB.foto(p))}" alt="">
+        <div class="grow"><b>Foto del producto</b><p class="muted small">Se ve en la app de clientes y en la landing. Sin foto se usa una ilustración 3D según el ícono.</p>
+          <div class="row"><label class="btn sm">📷 Sacar o subir foto<input type="file" accept="image/*" capture="environment" id="pf-file" hidden></label>
+          <button type="button" class="btn sm" id="pf-off">🔎 Buscar foto por código</button><button type="button" class="btn sm" id="pf-noimg">Quitar foto</button></div>
+          <input name="imagen" value="${esc(p.imagen || '')}" placeholder="o pegá el enlace de una imagen (https://…)" class="mt"></div></div>
       <div class="row">
         <label class="check"><input type="checkbox" name="favorito" ${p.favorito ? 'checked' : ''}> Acceso rápido en Vender</label>
         <label class="check"><input type="checkbox" name="publicar" ${p.publicar !== false ? 'checked' : ''}> Mostrar en app de clientes</label>
@@ -52,6 +61,32 @@ const Productos = (() => {
     const updM = () => {
       const c = num($('[name=costo]', body).value), pr = num($('[name=p0]', body).value);
       $('#pf-margen', body).value = c > 0 && pr > 0 ? `${fmtN((pr - c) / c * 100, 1)}% s/costo · ganancia ${fmt(pr - c)}` : '—';
+    };
+    const updD = () => { const of = num($('[name=ofPrecio]', body).value), pr = num($('[name=p0]', body).value); $('#pf-desc', body).value = of > 0 && pr > of ? `${Math.round((1 - of / pr) * 100)}% OFF` : '—'; };
+    $('[name=ofPrecio]', body).addEventListener('input', updD);
+    $('[name=p0]', body).addEventListener('input', updD);
+    updD();
+    const imgEl = $('#pf-img', body), imgIn = $('[name=imagen]', body);
+    const verImg = () => { imgEl.src = imgIn.value || DB.img3d($('[name=emoji]', body).value || DB.emoji(p)); };
+    imgIn.addEventListener('change', verImg);
+    $('[name=emoji]', body).addEventListener('input', verImg);
+    $('#pf-noimg', body).onclick = () => { imgIn.value = ''; verImg(); };
+    $('#pf-file', body).onchange = async e => {
+      const f = e.target.files[0];
+      if (!f) return;
+      try { imgIn.value = await achicarFoto(f); verImg(); UI.toast('Foto lista. Guardá el producto para conservarla.', 'ok'); }
+      catch { UI.toast('No se pudo leer la imagen', 'error'); }
+    };
+    $('#pf-off', body).onclick = async () => {
+      const code = $('[name=codigo]', body).value.trim();
+      if (!/^\d{8,14}$/.test(code)) return UI.toast('Cargá primero un código de barras válido', 'warn');
+      UI.toast('Buscando en Open Food Facts…', 'info', 1500);
+      const r = await buscarOFF(code);
+      if (!r) return UI.toast('No se encontró ese código en la base pública. Podés sacarle una foto.', 'warn', 5000);
+      if (r.imagen) { imgIn.value = r.imagen; verImg(); }
+      if (r.nombre && !$('[name=nombre]', body).value) $('[name=nombre]', body).value = r.nombre;
+      if (r.marca && !$('[name=marca]', body).value) $('[name=marca]', body).value = r.marca;
+      UI.toast(r.imagen ? 'Foto encontrada ✔' : 'Se encontraron datos pero sin foto', r.imagen ? 'ok' : 'warn');
     };
     $('[name=costo]', body).addEventListener('input', updM);
     $('[name=p0]', body).addEventListener('input', updM);
@@ -81,7 +116,9 @@ const Productos = (() => {
           codigo: f.codigo, codigosAlt: f.codigosAlt.split(',').map(s => s.trim()).filter(Boolean), nombre: f.nombre, rubro: f.rubro, marca: f.marca,
           proveedorId: f.proveedorId, costo: round2(f.costo), precios: cfg.listas.map((_, i) => round2(f['p' + i])), stockMin: f.stockMin,
           porPeso: f.porPeso, plu: f.plu, emoji: f.emoji, imagen: f.imagen, favorito: f.favorito, publicar: f.publicar, activo: f.activo,
+          oferta: f.ofPrecio > 0 ? { precio: round2(f.ofPrecio), hasta: f.ofHasta } : null,
         });
+        if (p.oferta && p.oferta.precio >= p.precios[0]) { UI.toast('El precio de oferta debe ser menor al precio normal', 'warn'); p.oferta = null; }
         if (f.rubro && !cfg.rubros.includes(f.rubro)) cfg.rubros.push(f.rubro);
         if (nuevo) {
           p.id = DB.uid(); p.stock = 0; p.stockDeposito = 0;
@@ -97,11 +134,40 @@ const Productos = (() => {
     UI.modal({ title: nuevo ? 'Nuevo producto' : 'Editar producto', size: 'wide', body, actions });
   }
 
+  /* Reduce la foto a 480 px para que no ocupe espacio */
+  function achicarFoto(file) {
+    return new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, 480 / Math.max(img.width, img.height));
+        const c = document.createElement('canvas');
+        c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        const x = c.getContext('2d');
+        x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height);
+        x.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(img.src);
+        res(c.toDataURL('image/jpeg', 0.82));
+      };
+      img.onerror = rej;
+      img.src = URL.createObjectURL(file);
+    });
+  }
+
+  /* Base pública y gratuita de productos (fotos reales por código de barras) */
+  async function buscarOFF(code) {
+    try {
+      const r = await fetch(`https://world.openfoodfacts.org/api/v2/product/${code}.json?fields=product_name,brands,image_front_url,image_url`);
+      const j = await r.json();
+      if (j.status !== 1 || !j.product) return null;
+      return { nombre: j.product.product_name || '', marca: (j.product.brands || '').split(',')[0].trim(), imagen: j.product.image_front_url || j.product.image_url || '' };
+    } catch { return null; }
+  }
+
   function ficha(p) {
     const mg = margen(p);
     UI.modal({
       title: 'Producto',
-      body: `<div class="prod-card"><div class="emo">${DB.emoji(p)}</div><div><b style="font-size:17px">${esc(p.nombre)}</b><br><small class="muted">${esc(p.codigo)} · ${esc(p.rubro || '')} ${esc(p.marca || '')}</small><div class="price">${fmt(DB.precio(p))}${p.porPeso ? '<small>/kg</small>' : ''}</div></div></div>
+      body: `<div class="prod-card"><div class="emo"><img src="${esc(DB.foto(p))}" alt="" style="width:80%;height:80%;object-fit:contain"></div><div><b style="font-size:17px">${esc(p.nombre)}</b><br><small class="muted">${esc(p.codigo)} · ${esc(p.rubro || '')} ${esc(p.marca || '')}</small><div class="price">${fmt(DB.precio(p))}${p.porPeso ? '<small>/kg</small>' : ''}</div></div></div>
         <div class="kpis mt"><div class="kpi"><small>Góndola</small><b>${fmtN(p.stock, 3)}</b></div><div class="kpi"><small>Depósito</small><b>${fmtN(p.stockDeposito || 0, 3)}</b></div><div class="kpi"><small>Mínimo</small><b>${fmtN(p.stockMin || 0, 3)}</b></div>
         ${App.esAdmin() ? `<div class="kpi"><small>Costo · margen</small><b>${fmt(p.costo)}</b><span class="sub">${mg == null ? '' : mg + '% s/costo'}</span></div>` : ''}</div>
         ${(p.lotes || []).length ? `<h3>Vencimientos</h3><ul class="list-plain">${p.lotes.map(l => `<li><span>${fechaISO(l.venc)}</span><span>${fmtN(l.cant, 3)} u. · ${venceBadge(l.venc)}</span></li>`).join('')}</ul>` : ''}
@@ -248,17 +314,7 @@ const Productos = (() => {
   }
 
   /* Genera data/catalogo.json para la app de clientes (subirlo al repositorio para publicarlo) */
-  function catalogoJSON() {
-    const n = DB.g.config.negocio;
-    return {
-      actualizado: Date.now(),
-      negocio: { nombre: n.nombre, whatsapp: n.whatsapp, direccion: n.direccion, telefono: n.telefono, horario: n.horario, alias: n.alias, mpLink: n.mpLink },
-      rubros: DB.g.config.rubros.filter(r => DB.d.productos.some(p => p.rubro === r && p.publicar !== false && p.activo !== false)),
-      productos: DB.d.productos.filter(p => p.publicar !== false && p.activo !== false && DB.precio(p) > 0).map(p => ({
-        c: p.codigo, n: p.nombre, r: p.rubro, m: p.marca, p: DB.precio(p), e: DB.emoji(p), i: p.imagen || '', k: p.porPeso ? 1 : 0, s: p.stock > 0 ? 1 : 0, d: p.favorito ? 1 : 0,
-      })),
-    };
-  }
+  function catalogoJSON() { return Catalogo.construir(DB.g, DB.d); }
   function publicarCatalogo() {
     UI.download('catalogo.json', JSON.stringify(catalogoJSON()));
     UI.modal({
@@ -301,8 +357,8 @@ const Productos = (() => {
       }).sort((a, b) => a.nombre.localeCompare(b.nombre));
       const vis = list.slice(0, 300);
       $('#pr-body', v).innerHTML = vis.length ? vis.map(p => { const mg = margen(p); return `<tr class="click" data-id="${p.id}">
-        <td>${DB.emoji(p)} <b>${esc(p.nombre)}</b>${p.favorito ? ' ⭐' : ''}<br><small class="muted">${esc(p.codigo)} ${p.marca ? '· ' + esc(p.marca) : ''}${p.porPeso ? ' · por kg' : ''}</small></td>
-        <td>${esc(p.rubro || '')}</td><td class="num">${fmt(p.costo)}</td><td class="num">${fmt(DB.precio(p))}</td>
+        <td><div class="row" style="flex-wrap:nowrap"><img src="${esc(DB.foto(p))}" alt="" class="thumb" loading="lazy"><div><b>${esc(p.nombre)}</b>${p.favorito ? ' ⭐' : ''}${DB.ofertaActiva(p) ? ' <span class="badge danger">OFERTA</span>' : ''}<br><small class="muted">${esc(p.codigo)} ${p.marca ? '· ' + esc(p.marca) : ''}${p.porPeso ? ' · por kg' : ''}</small></div></div></td>
+        <td>${esc(p.rubro || '')}</td><td class="num">${fmt(p.costo)}</td><td class="num">${DB.ofertaActiva(p) ? `<s class="muted small">${fmt(DB.precioLista(p))}</s><br>` : ''}${fmt(DB.precio(p))}</td>
         <td class="num ${mg != null && mg < 15 ? 'danger-t' : ''}">${mg == null ? '—' : fmtN(mg, 1) + '%'}</td><td class="num">${stockBadge(p)}</td><td class="num">${fmtN(p.stockDeposito || 0, 3)}</td></tr>`; }).join('')
         : `<tr><td colspan="7">${UI.empty('No hay productos con ese filtro')}</td></tr>`;
       $('#pr-count', v).textContent = `${list.length} productos${list.length > vis.length ? ' (mostrando 300, refiná la búsqueda)' : ''}`;

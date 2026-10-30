@@ -1,8 +1,8 @@
 /* Service worker: la app funciona sin internet. Subí VERSION al publicar cambios. */
-const VERSION = 'kiosco-v3';
+const VERSION = 'kiosco-v4';
 const SHELL = [
-  './', 'index.html', 'panel.html', 'cliente.html', 'css/landing.css', 'js/landing.js', 'js/catalogo.js', 'manifest.json', 'manifest-cliente.json',
-  'css/app.css', 'css/cliente.css', 'img/icon.svg', 'img/icon-192.png', 'img/icon-512.png',
+  './', 'index.html', 'panel.html', 'cliente.html', 'js/landing.js', 'js/catalogo.js', 'manifest.json', 'manifest-cliente.json',
+  'css/app.css', 'css/tienda.css', 'img/icon.svg', 'img/icon-192.png', 'img/icon-512.png',
   'js/kv.js', 'js/ui.js', 'js/db.js', 'js/hardware.js', 'js/scanner.js', 'js/app.js', 'js/cliente.js',
   'js/modules/caja.js', 'js/modules/pos.js', 'js/modules/productos.js', 'js/modules/stock.js', 'js/modules/precios.js',
   'js/modules/clientes.js', 'js/modules/proveedores.js', 'js/modules/reportes.js', 'js/modules/varios.js', 'js/modules/admin.js',

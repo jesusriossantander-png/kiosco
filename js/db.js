@@ -4,7 +4,7 @@ const DB = (() => {
   const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
   const RUBROS = ['Bebidas', 'Cigarrillos', 'Golosinas', 'Galletitas', 'Snacks', 'Almacén', 'Lácteos', 'Fiambres', 'Panadería', 'Helados', 'Limpieza', 'Perfumería', 'Librería', 'Varios'];
   const EMOJI = {
-    Bebidas: '🥤', Cigarrillos: '🚬', Golosinas: '🍬', Galletitas: '🍪', Snacks: '🍟', Almacén: '🛒', Lácteos: '🥛',
+    Bebidas: '🥤', Cigarrillos: '🚬', Golosinas: '🍫', Galletitas: '🍪', Snacks: '🍟', Almacén: '🧉', Lácteos: '🥛',
     Fiambres: '🧀', Panadería: '🥖', Helados: '🍦', Limpieza: '🧴', Perfumería: '🧼', Librería: '✏️', Varios: '📦',
   };
   let G, D, device, timer;
@@ -19,7 +19,7 @@ const DB = (() => {
 
   function defaultGlobal() {
     return {
-      version: 1,
+      version: 2,
       seeded: false,
       sucursales: [{ id: 'central', nombre: 'Casa central', direccion: '' }],
       usuarios: [
@@ -45,6 +45,20 @@ const DB = (() => {
         balanza: { prefijo: '20', modo: 'peso', baud: 9600, comando: 'P' },
         stock: { permitirSinStock: true, diasVencimiento: 7 },
         arca: { habilitado: false },
+        app: {
+          aviso: '🛵 Envío sin cargo desde $15.000 · Pedí hasta las 23:30',
+          banners: [
+            { titulo: 'Fin de semana de ofertas', sub: 'Hasta 25% OFF en bebidas, golosinas y snacks', badge: 'HASTA 25%', color: 'naranja', emoji: '🥤🍫🍟', link: 'ofertas' },
+            { titulo: 'Pagá con QR y ahorrá', sub: '10% de reintegro con billeteras virtuales · tope $2.000', badge: 'PROMO PAGOS', color: 'verde', emoji: '📱💳', link: 'ahorros' },
+            { titulo: 'Envío sin cargo', sub: 'En pedidos desde $15.000 dentro del barrio', badge: 'DELIVERY', color: 'violeta', emoji: '🛵', link: 'inicio' },
+            { titulo: 'Martes de alfajores', sub: 'Llevá 3 y pagá 2 en alfajores seleccionados', badge: '3x2', color: 'rojo', emoji: '🍫🍪', link: 'Golosinas' },
+          ],
+          promosPago: [
+            { dia: 'Todos los días', titulo: '10% de reintegro', sub: 'Pagando con QR · billeteras virtuales', emoji: '📱' },
+            { dia: 'Viernes', titulo: '3 cuotas sin interés', sub: 'Con tarjetas de crédito · compras desde $30.000', emoji: '💳' },
+            { dia: 'Lunes a jueves', titulo: '5% OFF en efectivo', sub: 'En compras desde $20.000', emoji: '💵' },
+          ],
+        },
         backupAuto: true,
         tema: 'auto',
       },
@@ -58,6 +72,19 @@ const DB = (() => {
       seq: { venta: 1, orden: 1, compra: 1, devolucion: 1, pedido: 1, interno: 1 },
     };
   }
+
+  /* Imagen 3D y ofertas de los productos de ejemplo */
+  const SEED_EMOJI = {
+    '7790895000997': '🥤', '7790895001000': '🥤', '7790895066403': '🧃', '7798062541233': '💧', '7791813420026': '🍺', '7790040113303': '⚡',
+    '7792799000011': '🍊', '7790580660008': '🍫', '7790040729504': '🍪', '7790580120002': '🍬', '7790380023507': '🍫', '7790310981171': '🍭',
+    '7790040990001': '🍪', '7790040380009': '🍘', '7790310001237': '🍟', '7790310002227': '🥨', '7790387000106': '🧉', '7790070411704': '🧂',
+    '7790580430019': '🍝', '7790742356004': '🥛', '7790742367109': '🍓', '7790990586091': '🧴', '7791290009321': '🧼', '7790250000009': '🔋',
+    '7790000000105': '🔥', '2000001': '🧀', '2000002': '🍖', '2000003': '🥖',
+  };
+  const SEED_OFERTA = {
+    '7790895001000': 1990, '7790580660008': 640, '7790387000106': 2340, '7790310001237': 1490, '7798062541233': 600,
+    '7790040990001': 1090, '7790742356004': 1290, '2000002': 11900, '7790380023507': 1350, '7790990586091': 990,
+  };
 
   function seed(d) {
     const r10 = n => Math.round(n / 10) * 10;
@@ -101,6 +128,7 @@ const DB = (() => {
       ['2000003', 'Pan francés (kg)', 'Panadería', '', 1200, 2400, 10, 2, { porPeso: true, plu: '00003' }],
     ];
     d.proveedores = prov;
+    P.forEach(r => { const ex = r[8] || (r[8] = {}); if (SEED_EMOJI[r[0]]) ex.emoji = SEED_EMOJI[r[0]]; if (SEED_OFERTA[r[0]]) ex.oferta = { precio: SEED_OFERTA[r[0]], hasta: '' }; });
     d.productos = P.map(([codigo, nombre, rubro, marca, costo, precio, stock, stockMin, ex = {}]) => ({
       id: uid(), codigo, codigosAlt: [], nombre, rubro, marca, costo, precios: [precio, r10(precio * 0.9), 0, 0, 0],
       stock, stockDeposito: 0, stockMin, porPeso: false, plu: '', emoji: '', imagen: '', lotes: [],
@@ -118,6 +146,15 @@ const DB = (() => {
     G = merge(defaultGlobal(), await KV.get('global'));
     device = merge({ caja: 'Caja 1', sucursal: G.sucursales[0].id }, readLS(DKEY));
     await useSucursal(device.sucursal);
+    if ((G.version || 1) < 2) {
+      D.productos.forEach(p => {
+        if (!p.emoji && SEED_EMOJI[p.codigo]) p.emoji = SEED_EMOJI[p.codigo];
+        if (!p.oferta && SEED_OFERTA[p.codigo]) p.oferta = { precio: SEED_OFERTA[p.codigo], hasta: '' };
+        if (p.rubro === 'Cigarrillos') p.publicar = false;
+      });
+      G.version = 2;
+      await flush();
+    }
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
   }
 
@@ -156,8 +193,17 @@ const DB = (() => {
     if (!code) return null;
     return D.productos.find(p => p.activo !== false && (p.codigo === code || (p.codigosAlt || []).includes(code))) || null;
   }
-  const precio = (p, lista = 0) => +(p.precios?.[lista]) || +(p.precios?.[0]) || 0;
+  const ofertaActiva = p => !!(p.oferta && +p.oferta.precio > 0 && (!p.oferta.hasta || p.oferta.hasta >= isoDate()));
+  const precioLista = (p, lista = 0) => +(p.precios?.[lista]) || +(p.precios?.[0]) || 0;
+  /* La oferta se aplica sobre la lista minorista (y sobre cualquier lista si resulta más barata) */
+  const precio = (p, lista = 0) => {
+    const base = precioLista(p, lista);
+    return ofertaActiva(p) && (lista === 0 || +p.oferta.precio < base) ? +p.oferta.precio : base;
+  };
   const emoji = p => p.emoji || EMOJI[p.rubro] || '📦';
+  /* Imagen del producto: foto real si existe, si no ilustración 3D */
+  const img3d = e => 'img/3d/' + [...String(e || '📦')].map(c => c.codePointAt(0).toString(16)).filter(x => x !== 'fe0f' && x !== '200d').join('-') + '.webp';
+  const foto = p => p.imagen || img3d(emoji(p));
 
   /* Movimiento de stock: positivo entra, negativo sale. Consume lotes por FEFO (primero vence, primero sale) */
   function mov(p, cant, tipo, motivo = '', extra = {}) {
@@ -233,7 +279,7 @@ const DB = (() => {
   }
 
   return {
-    uid, RUBROS, EMOJI, init, useSucursal, save, flush, next, prod, cliente, proveedor, porCodigo, precio, emoji, mov,
+    uid, RUBROS, EMOJI, init, useSucursal, save, flush, next, prod, cliente, proveedor, porCodigo, precio, precioLista, ofertaActiva, emoji, img3d, foto, mov,
     snapshot, restore, autoBackup, backups, resetTodo, crearSucursal,
     get g() { return G; }, get d() { return D; }, get device() { return device; },
     get sucursal() { return G.sucursales.find(s => s.id === device.sucursal) || G.sucursales[0]; },

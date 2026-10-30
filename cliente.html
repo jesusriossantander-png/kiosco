@@ -1,35 +1,20 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Pedí online</title>
-  <meta name="description" content="Mirá precios, armá tu pedido y envialo por WhatsApp.">
-  <meta name="theme-color" content="#0f766e">
+  <meta name="description" content="Ofertas, promos de pago y pedidos por WhatsApp desde tu celular.">
+  <meta name="theme-color" content="#ffffff">
   <link rel="manifest" href="manifest-cliente.json">
   <link rel="icon" href="img/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="img/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="css/app.css">
-  <link rel="stylesheet" href="css/cliente.css">
+  <link rel="stylesheet" href="css/tienda.css">
 </head>
-<body class="cli">
-  <header class="cli-head">
-    <div class="cli-wrap">
-      <div class="row">
-        <div><h1 id="c-nombre">Cargando…</h1><p id="c-info"></p></div>
-        <div class="row" style="flex-wrap:nowrap"><a class="icon-btn" href="index.html" aria-label="Página del kiosco" style="text-decoration:none">⌂</a><button class="icon-btn" id="c-share" aria-label="Compartir">↗</button></div>
-      </div>
-    </div>
-  </header>
-  <main class="cli-wrap" id="c-view"></main>
-  <button class="cartbar hidden" id="c-cartbar">🛒 <span id="c-cartn"></span><b id="c-cartt"></b></button>
-  <nav class="tabbar" aria-label="Secciones">
-    <button data-t="inicio" class="on">🏠<span>Inicio</span></button>
-    <button data-t="carrito">🛒<span>Carrito</span><i class="dot hidden" id="c-dot"></i></button>
-    <button data-t="pedidos">🧾<span>Mis pedidos</span></button>
-    <button data-t="perfil">👤<span>Mis datos</span></button>
-  </nav>
+<body class="tienda">
+  <div id="app"></div>
   <script src="js/kv.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/scanner.js"></script>

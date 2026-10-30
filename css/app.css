@@ -383,3 +383,10 @@ h3 { font-size: 15px; }
 .tk-bars > div { position: relative; height: 44px; }
 .tk-bars i { position: absolute; top: 0; bottom: 0; background: #161616; }
 .tk-cod { font-size: 11px; letter-spacing: 3px; margin-top: 2px; }
+
+/* Fotos de productos en el panel */
+.thumb { width: 42px; height: 42px; object-fit: contain; border-radius: 10px; background: var(--surface-2); flex: none; padding: 3px; }
+.quick button img { width: 42px; height: 42px; object-fit: contain; }
+.foto-box { display: flex; gap: 14px; align-items: flex-start; border: 1px dashed var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
+.foto-box > img { width: 96px; height: 96px; object-fit: contain; border-radius: 12px; background: #fff; flex: none; }
+.prod-card .emo { background: #fff; }

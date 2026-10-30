@@ -126,3 +126,13 @@ Al publicar cambios, subí el número de `VERSION` en `sw.js` para que los dispo
 ## Marketing
 
 En `marketing/` están los videos para Facebook/Instagram (`promo-clientes.mp4`, `promo-duenos.mp4`), las portadas y el plan de campaña con textos listos (`marketing/CAMPANA.md`).
+
+## Tienda online (estilo supermercado)
+
+La landing y la app de clientes tienen un diseño de tienda: banners que pasan solos, círculos de promociones, categorías con imagen, tarjetas de producto con descuento y precio por litro/kilo, ficha de producto, carro con sugerencias ("¿Querés agregar algo más?") y la sección **Ahorros** con promos de medios de pago.
+
+- **Ofertas reales**: en el panel, Productos → editar → *Precio de oferta* (y fecha opcional). Se aplica también al cobrar en caja.
+- **Banners, aviso y promos de pago**: Configuración → *App y banners*.
+- **Fotos de productos**: Productos → editar → *Sacar o subir foto* (cámara del celular), *Buscar foto por código* (base pública Open Food Facts) o pegar un enlace. Sin foto se usa una ilustración 3D.
+
+Ilustraciones 3D: [Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji) (licencia MIT), en `img/3d/`.

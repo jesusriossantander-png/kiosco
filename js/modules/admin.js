@@ -52,7 +52,7 @@ App.register('config', {
     const cfg = DB.g.config;
     const tabs = [
       { id: 'negocio', label: '🏪 Negocio' }, { id: 'sucursal', label: '🏬 Sucursales y cajas' }, { id: 'ticket', label: '🖨️ Ticket, cajón y balanza' },
-      { id: 'ventas', label: '🛒 Ventas y stock' }, { id: 'backup', label: '💾 Backup' }, { id: 'arca', label: '🧾 Facturación ARCA' },
+      { id: 'ventas', label: '🛒 Ventas y stock' }, { id: 'app', label: '📱 App y banners' }, { id: 'backup', label: '💾 Backup' }, { id: 'arca', label: '🧾 Facturación ARCA' },
     ];
     v.innerHTML = UI.tabs(tabs, this.tab) + '<div id="cf-body"></div>';
     $$('[data-tab]', v).forEach(b => { b.onclick = () => { this.tab = b.dataset.tab; App.refresh(); }; });
@@ -195,6 +195,39 @@ App.register('config', {
         $$('[data-dl]', box).forEach(b => { b.onclick = () => UI.download(`backup-kiosco-${isoDate(new Date(list[+b.dataset.dl].fecha))}.json`, JSON.stringify(list[+b.dataset.dl])); });
         $$('[data-rs]', box).forEach(b => { b.onclick = async () => { if (await UI.confirm('¿Restaurar este backup? Se reemplazan los datos actuales.', { danger: true, ok: 'Restaurar' })) { await DB.restore(list[+b.dataset.rs]); App.chrome(); App.refresh(); } }; });
       });
+    }
+
+    if (this.tab === 'app') {
+      const ap = cfg.app;
+      const COLORES = ['naranja', 'verde', 'violeta', 'rojo', 'azul', 'amarillo'];
+      const links = [['inicio', 'Inicio'], ['ofertas', 'Todas las ofertas'], ['ahorros', 'Ahorros / promos de pago'], ...cfg.rubros.map(r => [r, 'Rubro: ' + r])];
+      const draw = () => {
+        body.innerHTML = `<div class="card form"><h3>Aviso superior</h3><p class="muted small">La franja de color arriba de todo en la app y la landing.</p>
+            <input id="ap-aviso" value="${esc(ap.aviso || '')}" placeholder="Ej: 🛵 Envío sin cargo desde $15.000"></div>
+          <div class="card form"><div class="card-h"><h3>Banners que pasan solos (carrusel)</h3><button class="btn sm" id="ap-addb">+ Banner</button></div>
+            ${ap.banners.map((b, i) => `<div class="card" style="box-shadow:none;margin-top:10px" data-b="${i}"><div class="grid3">
+              <label><span>Título</span><input data-k="titulo" value="${esc(b.titulo)}"></label><label><span>Texto</span><input data-k="sub" value="${esc(b.sub)}"></label><label><span>Etiqueta</span><input data-k="badge" value="${esc(b.badge || '')}" placeholder="HASTA 25%"></label></div>
+              <div class="grid3"><label><span>Color</span><select data-k="color">${opts(COLORES, b.color)}</select></label><label><span>Íconos 3D (1 a 3 emojis)</span><input data-k="emoji" value="${esc(b.emoji || '')}" placeholder="🥤🍫🍟"></label><label><span>Al tocarlo lleva a</span><select data-k="link">${opts(links, b.link, x => x[0], x => x[1])}</select></label></div>
+              <div class="row end"><button class="btn sm" data-up="${i}" ${i ? '' : 'disabled'}>↑ Subir</button><button class="btn sm danger" data-delb="${i}">Eliminar</button></div></div>`).join('')}</div>
+          <div class="card form"><div class="card-h"><h3>Promos con medios de pago</h3><button class="btn sm" id="ap-addp">+ Promo</button></div>
+            ${ap.promosPago.map((x, i) => `<div class="grid5" data-pp="${i}" style="grid-template-columns:1fr 1fr 1.4fr 80px auto;align-items:end">
+              <label><span>Días</span><input data-k="dia" value="${esc(x.dia)}"></label><label><span>Beneficio</span><input data-k="titulo" value="${esc(x.titulo)}"></label><label><span>Condición</span><input data-k="sub" value="${esc(x.sub)}"></label><label><span>Ícono</span><input data-k="emoji" value="${esc(x.emoji || '')}"></label><button class="btn sm danger" data-delp="${i}">✕</button></div>`).join('')}
+            <p class="muted small">Son textos informativos: aplicá el descuento al cobrar con el campo "Descuento %".</p></div>
+          <div class="row"><button class="btn primary" id="ap-save">Guardar</button><a class="btn" href="cliente.html" target="_blank" rel="noopener">Ver la app de clientes ↗</a><a class="btn" href="index.html" target="_blank" rel="noopener">Ver la landing ↗</a></div>
+          <p class="muted small mt">Para que lo vean tus clientes en otros celulares, después de guardar usá Productos → Publicar catálogo.</p>`;
+        const leer = () => {
+          ap.aviso = $('#ap-aviso', body).value.trim();
+          $$('[data-b]', body).forEach(c => { const b = ap.banners[+c.dataset.b]; $$('[data-k]', c).forEach(i => { b[i.dataset.k] = i.value.trim(); }); });
+          $$('[data-pp]', body).forEach(c => { const x = ap.promosPago[+c.dataset.pp]; $$('[data-k]', c).forEach(i => { x[i.dataset.k] = i.value.trim(); }); });
+        };
+        $('#ap-addb', body).onclick = () => { leer(); ap.banners.push({ titulo: 'Nueva promo', sub: 'Descripción', badge: 'NUEVO', color: 'naranja', emoji: '🎁', link: 'ofertas' }); draw(); };
+        $('#ap-addp', body).onclick = () => { leer(); ap.promosPago.push({ dia: 'Todos los días', titulo: 'Beneficio', sub: 'Condición', emoji: '💳' }); draw(); };
+        $$('[data-delb]', body).forEach(b => { b.onclick = () => { leer(); ap.banners.splice(+b.dataset.delb, 1); draw(); }; });
+        $$('[data-delp]', body).forEach(b => { b.onclick = () => { leer(); ap.promosPago.splice(+b.dataset.delp, 1); draw(); }; });
+        $$('[data-up]', body).forEach(b => { b.onclick = () => { leer(); const i = +b.dataset.up; [ap.banners[i - 1], ap.banners[i]] = [ap.banners[i], ap.banners[i - 1]]; draw(); }; });
+        $('#ap-save', body).onclick = () => { leer(); DB.save(); UI.toast('App de clientes actualizada', 'ok'); };
+      };
+      draw();
     }
 
     if (this.tab === 'arca') {

@@ -1,59 +1,56 @@
-/* Landing: ofertas y destacados desde el catálogo, datos del negocio y acceso a la app.
-   Las ofertas se editan en la lista OFERTAS: código del producto, cantidad, % de descuento y etiqueta. */
-const OFERTAS = [
-  { c: '7790895001000', cant: 2, pct: 15, tag: 'Llevando 2' },
-  { c: '7790580660008', cant: 3, pct: 20, tag: 'Pack x3' },
-  { c: '7791813420026', cant: 6, pct: 18, tag: 'Six pack' },
-  { c: '7790310001237', cant: 1, pct: 12, tag: 'Para el finde' },
-  { c: '7790387000106', cant: 1, pct: 10, tag: 'Mateada' },
-  { c: '2000001', cant: 0.5, pct: 10, tag: '½ kg' },
-];
-const PROMOS_TICKER = ['🔥 Ofertas nuevas todas las semanas', '🍫 Martes 3x2 en alfajores', '💵 10% off en efectivo desde $20.000', '🛵 Envío sin cargo desde $15.000', '📶 Recargas y pago de servicios', '📱 Pagá con QR'];
-
+/* Landing: banners, ofertas, categorías y promos tomadas del catálogo (se editan desde el panel) */
 (async () => {
   $('#lp-year').textContent = new Date().getFullYear();
-  const track = $('#lp-track');
-  const items = PROMOS_TICKER.map(t => `<span>${esc(t)}</span>`).join('');
-  track.innerHTML = items + items;
-
-  $$('[data-entrar]').forEach(b => {
-    b.onclick = () => UI.modal({
-      title: 'Entrar a la aplicación',
-      body: `<div class="pick-list">
-        <a class="pick-opt" href="cliente.html"><span>🛍️ <b>Soy cliente</b><br><small class="muted">Ver precios y hacer pedidos</small></span><b>→</b></a>
-        <a class="pick-opt" href="panel.html"><span>🧾 <b>Panel del negocio</b><br><small class="muted">Demo: Administrador PIN 1234 · Cajero/a PIN 0000</small></span><b>→</b></a></div>`,
-      size: 'pick',
-    });
-  });
-
   let cat;
-  try { cat = await Catalogo.cargar(); } catch { cat = { negocio: {}, productos: [] }; }
-  const n = cat.negocio || {};
-  $$('[data-n]').forEach(el => { const v = n[el.dataset.n]; if (v) el.textContent = v; });
-  if (n.nombre) document.title = `${n.nombre} · Ofertas y pedidos online`;
-  if (n.horario) $('#lp-abierto').textContent = '🟢 ' + n.horario;
-  const dir = n.direccion || '';
-  $('#lp-map').href = dir ? `https://maps.google.com/?q=${encodeURIComponent(dir)}` : 'https://maps.google.com';
+  try { cat = await Catalogo.cargar(); } catch { cat = { negocio: {}, app: {}, rubros: [], productos: [] }; }
+  const n = cat.negocio || {}, a = cat.app || {};
+  const cart = (() => { try { return JSON.parse(localStorage.getItem('cliente:cart')) || {}; } catch { return {}; } })();
+
+  $$('[data-n]').forEach(el => { if (n[el.dataset.n]) el.textContent = n[el.dataset.n]; });
+  if (n.nombre) { $('#lp-nombre').textContent = n.nombre; document.title = `${n.nombre} · Ofertas y pedidos online`; }
+  if (n.horario) $('#lp-horario').textContent = `${n.horario} · Retirá en el local o recibilo en tu casa`;
+  if (a.aviso) { const s = $('#lp-aviso'); s.textContent = a.aviso; s.hidden = false; }
+  $('#lp-map').href = n.direccion ? `https://maps.google.com/?q=${encodeURIComponent(n.direccion)}` : 'https://maps.google.com';
   const wa = Catalogo.waNumero(n.whatsapp);
-  if (wa) $('#lp-wa').href = `https://wa.me/${wa}?text=${encodeURIComponent(`Hola ${n.nombre || ''}! Quería hacer una consulta.`)}`;
+  if (wa) { const u = `https://wa.me/${wa}?text=${encodeURIComponent(`Hola ${n.nombre || ''}! Quería hacer una consulta.`)}`; $('#lp-wa').href = u; $('#lp-wa-row').href = u; }
+  if (matchMedia('(min-width: 900px)').matches) {
+    const f = $('#lp-search'); f.style.display = 'flex';
+    f.onsubmit = e => { e.preventDefault(); location.href = 'cliente.html#/lista?q=' + encodeURIComponent(f.q.value); };
+  }
 
-  const byCode = c => cat.productos.find(p => p.c === c);
-  const r10 = x => Math.round(x / 10) * 10;
-  const ofertas = OFERTAS.map(o => ({ ...o, p: byCode(o.c) })).filter(o => o.p);
-  $('#lp-ofertas').innerHTML = ofertas.length ? ofertas.map(({ p, cant, pct, tag }) => {
-    const antes = p.p * cant;
-    const ahora = r10(antes * (1 - pct / 100));
-    return `<article class="of">
-      <span class="of-pct">-${pct}%</span>
-      <div class="of-img">${p.i ? `<img src="${esc(p.i)}" alt="" loading="lazy">` : p.e}</div>
-      <span class="of-tag">${esc(tag)}</span>
-      <h3>${esc(p.n)}</h3>
-      <div class="of-pr"><s>${fmt(antes)}</s><b>${fmt(ahora)}</b></div>
-      <a class="btn primary block" href="cliente.html">Pedir ahora</a>
-    </article>`;
-  }).join('') : UI.empty('Pronto nuevas ofertas');
+  if (a.banners && a.banners.length) $('#lp-carousel').innerHTML = Tienda.carousel(a.banners);
+  Tienda.activar(document, link => {
+    location.href = !link || link === 'inicio' ? 'cliente.html' : link === 'ofertas' ? 'cliente.html#/lista?f=ofertas' : link === 'ahorros' ? 'cliente.html#/ahorros' : 'cliente.html#/lista?r=' + encodeURIComponent(link);
+  });
+  const stories = [['Ofertas', '🏷️', 'cliente.html#/lista?f=ofertas'], ['Promos de pago', '💳', '#promos'], ['Bebidas frías', '🧊', 'cliente.html#/lista?r=Bebidas'], ['Golosinas', '🍫', 'cliente.html#/lista?r=Golosinas'], ['Para el mate', '🧉', 'cliente.html#/lista?r=Almac%C3%A9n'], ['Recargas', '📶', '#servicios'], ['Pedí online', '🛵', 'cliente.html']];
+  $('#lp-stories').innerHTML = stories.map(([l, e, g]) => `<a class="t-story" href="${g}"><div class="ring"><div class="in" style="background:#fff8db"><img src="${Tienda.img3d(e)}" alt=""></div></div><span>${l}</span></a>`).join('');
 
-  const pub = cat.productos.filter(p => p.r !== 'Cigarrillos');
-  const top = pub.filter(p => p.d).concat(pub.filter(p => !p.d)).slice(0, 10);
-  $('#lp-top').innerHTML = top.map(p => `<a class="mini" href="cliente.html"><span>${p.e}</span><b>${esc(p.n)}</b><small>${fmt(p.p)}${p.k ? ' /kg' : ''}</small></a>`).join('');
+  const ofertas = cat.productos.filter(p => p.o).sort((x, y) => Tienda.pct(y) - Tienda.pct(x));
+  const fila = list => list.map(p => Tienda.card(p, cart[p.c] || 0)).join('');
+  $('#lp-ofertas').innerHTML = ofertas.length ? fila(ofertas.slice(0, 12)) : UI.empty('Pronto nuevas ofertas');
+  $('#lp-tiles').innerHTML = Tienda.mosaico(cat.productos);
+  $('#lp-cats').innerHTML = cat.rubros.map(r => `<a class="t-cat" href="cliente.html#/lista?r=${encodeURIComponent(r)}"><div class="sq"><img src="${Tienda.img3d(Catalogo.EMO[r] || '📦')}" alt=""></div><span>${esc(r)}</span></a>`).join('');
+  $('#lp-pays').innerHTML = (a.promosPago || []).map(x => `<div class="t-pay"><img src="${Tienda.img3d(x.emoji || '💳')}" alt=""><div><small>${esc(x.dia)}</small><b>${esc(x.titulo)}</b><span>${esc(x.sub)}</span></div></div>`).join('');
+  const top = cat.productos.filter(p => p.d).concat(cat.productos.filter(p => !p.d && !p.o)).slice(0, 12);
+  $('#lp-top').innerHTML = fila(top);
+
+  /* Agregar desde la landing usa el mismo carrito que la app */
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-add],[data-inc],[data-dec]');
+    if (b) {
+      const code = b.dataset.add || b.dataset.inc || b.dataset.dec;
+      const p = cat.productos.find(x => x.c === code);
+      const step = p.k ? 0.25 : 1;
+      cart[code] = round3((cart[code] || 0) + (b.dataset.dec ? -step : step));
+      if (cart[code] <= 0) delete cart[code];
+      localStorage.setItem('cliente:cart', JSON.stringify(cart));
+      $$(`[data-ctl="${CSS.escape(code)}"]`).forEach(el => { el.innerHTML = Tienda.control(p, cart[code] || 0); });
+      if (b.dataset.add) UI.toast(`Agregaste ${p.n} · abrí "Hacer pedido" para finalizar`, 'ok', 2500);
+      return;
+    }
+    const t = e.target.closest('.t-tile[data-rubro]');
+    if (t) { location.href = 'cliente.html#/lista?f=ofertas&r=' + encodeURIComponent(t.dataset.rubro); return; }
+    const c = e.target.closest('.pc[data-p]');
+    if (c && !e.target.closest('[data-stop]')) location.href = 'cliente.html#/p/' + encodeURIComponent(c.dataset.p);
+  });
 })();
