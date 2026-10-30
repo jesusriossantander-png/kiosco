@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>Promo</title>
+<style>
+  :root { --teal: #0f766e; --teal2: #14b8a6; --deep: #0b3f3b; --amber: #f59e0b; --amber2: #fbbf24; --ink: #10201e; --cream: #fff8ec; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { width: 540px; height: 960px; overflow: hidden; background: #000; }
+  body { font-family: "Inter Display", Inter, system-ui, sans-serif; color: #fff; -webkit-font-smoothing: antialiased; }
+  #stage { position: relative; width: 540px; height: 960px; overflow: hidden; }
+  .sc { position: absolute; inset: 0; opacity: 0; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 120px 34px 0; }
+  .bg-amber { background: radial-gradient(700px 500px at 80% 10%, #fde68a, transparent 60%), linear-gradient(165deg, #fbbf24, #f59e0b 55%, #ea580c); color: var(--ink); }
+  .bg-teal { background: radial-gradient(800px 520px at 90% -5%, #2dd4bf, transparent 60%), linear-gradient(165deg, #0f766e, #0b3f3b); }
+  .bg-deep { background: radial-gradient(700px 600px at 10% 0%, #134e4a, transparent 60%), linear-gradient(170deg, #0b1f1d, #06110f); }
+  .bg-cream { background: radial-gradient(700px 520px at 85% 0%, #fde68a, transparent 55%), var(--cream); color: var(--ink); }
+  .bg-red { background: radial-gradient(700px 500px at 20% 0%, #fb7185, transparent 60%), linear-gradient(165deg, #e11d48, #9f1239); }
+  [data-a], [data-kb], [data-float], [data-pulse] { will-change: transform, opacity; }
+  .t-xl { font-weight: 900; font-size: 64px; line-height: .98; letter-spacing: -2px; text-align: center; }
+  .t-l { font-weight: 900; font-size: 46px; line-height: 1.02; letter-spacing: -1.4px; text-align: center; }
+  .t-m { font-weight: 800; font-size: 30px; line-height: 1.12; letter-spacing: -.6px; text-align: center; }
+  .t-s { font-weight: 600; font-size: 20px; line-height: 1.3; text-align: center; opacity: .92; }
+  .hl { color: var(--amber2); }
+  .hl-teal { color: var(--teal); }
+  .chip { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,.16); border: 1.5px solid rgba(255,255,255,.35); padding: 8px 16px; border-radius: 99px; font-weight: 700; font-size: 18px; }
+  .chip.dark { background: rgba(16,32,30,.08); border-color: rgba(16,32,30,.18); }
+  .emo { position: absolute; font-size: 74px; filter: drop-shadow(0 12px 18px rgba(0,0,0,.25)); }
+  .tile { position: absolute; width: 112px; height: 112px; border-radius: 30px; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 66px; box-shadow: 0 18px 36px rgba(0,0,0,.22); }
+  /* Teléfono */
+  .phone { position: absolute; width: 300px; height: 650px; border-radius: 48px; background: #0d0d0d; padding: 11px; box-shadow: 0 40px 80px rgba(0,0,0,.45), inset 0 0 0 2px #333; }
+  .phone .scr { position: relative; width: 100%; height: 100%; border-radius: 38px; overflow: hidden; background: #0f766e; }
+  .phone .scr img { position: absolute; left: 0; right: 0; top: 34px; width: 100%; height: calc(100% - 34px); object-fit: cover; object-position: top; }
+  .phone::after { content: ''; position: absolute; top: 20px; left: 50%; transform: translateX(-50%); width: 92px; height: 26px; border-radius: 20px; background: #0d0d0d; }
+  /* Notebook */
+  .laptop { position: absolute; width: 500px; }
+  .laptop .lid { background: #111; border-radius: 18px 18px 6px 6px; padding: 10px 10px 14px; box-shadow: 0 30px 70px rgba(0,0,0,.5), inset 0 0 0 2px #2b2b2b; }
+  .laptop .scr { position: relative; width: 100%; aspect-ratio: 16 / 10; overflow: hidden; border-radius: 6px; background: #f3f5f7; }
+  .laptop .scr img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+  .laptop .base { height: 16px; margin: 0 -26px; background: linear-gradient(#d9dde1, #9ca3af); border-radius: 0 0 22px 22px; position: relative; }
+  .laptop .base::before { content: ''; position: absolute; left: 50%; top: 0; transform: translateX(-50%); width: 90px; height: 6px; background: #8b929b; border-radius: 0 0 8px 8px; }
+  /* Ofertas */
+  .ofs { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; width: 100%; margin-top: 34px; }
+  .of { position: relative; background: #fff; color: var(--ink); border-radius: 26px; padding: 16px; box-shadow: 0 18px 34px rgba(0,0,0,.25); }
+  .of .e { height: 112px; border-radius: 18px; background: #f1f5f4; display: flex; align-items: center; justify-content: center; font-size: 66px; }
+  .of .pct { position: absolute; top: 10px; right: 10px; background: #e11d48; color: #fff; font-weight: 900; font-size: 20px; padding: 6px 12px; border-radius: 99px; }
+  .of .tg { display: inline-block; margin-top: 10px; background: #d5f2ee; color: var(--teal); font-weight: 800; font-size: 13px; padding: 3px 10px; border-radius: 99px; }
+  .of h4 { font-size: 17px; font-weight: 800; margin-top: 6px; letter-spacing: -.3px; }
+  .of s { color: #7b8794; font-size: 15px; font-weight: 600; display: block; margin-top: 4px; }
+  .of b { color: var(--teal); font-size: 27px; font-weight: 900; letter-spacing: -.6px; }
+  /* Filas de beneficios */
+  .rows { display: grid; gap: 18px; width: 100%; margin-top: 46px; }
+  .row { display: flex; align-items: center; gap: 18px; background: rgba(255,255,255,.12); border: 1.5px solid rgba(255,255,255,.22); border-radius: 26px; padding: 20px 22px; }
+  .bg-cream .row { background: #fff; border-color: #eadfcb; box-shadow: 0 12px 26px rgba(0,0,0,.08); }
+  .row .i { font-size: 46px; width: 68px; height: 68px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.18); border-radius: 20px; flex: none; }
+  .bg-cream .row .i { background: #fef3c7; }
+  .row b { font-size: 25px; font-weight: 900; letter-spacing: -.5px; display: block; }
+  .row span { font-size: 17px; opacity: .85; font-weight: 600; }
+  .steps { display: flex; gap: 10px; position: absolute; left: 24px; right: 24px; bottom: 150px; }
+  .step { flex: 1; background: #fff; color: var(--ink); border-radius: 20px; padding: 12px 10px; text-align: center; font-weight: 800; font-size: 16px; box-shadow: 0 14px 28px rgba(0,0,0,.25); }
+  .step i { font-style: normal; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: var(--amber); margin: 0 auto 6px; font-weight: 900; font-size: 18px; }
+  .cta { display: inline-flex; align-items: center; gap: 10px; background: var(--amber); color: #1f1300; font-weight: 900; font-size: 32px; padding: 20px 38px; border-radius: 99px; box-shadow: 0 18px 40px rgba(245,158,11,.45); letter-spacing: -.5px; }
+  .url { font-weight: 700; font-size: 17px; background: rgba(255,255,255,.14); padding: 10px 16px; border-radius: 14px; letter-spacing: .1px; }
+  .logo { width: 128px; height: 128px; border-radius: 34px; box-shadow: 0 20px 40px rgba(0,0,0,.35); }
+  .checks { display: grid; gap: 12px; margin-top: 30px; }
+  .checks div { font-size: 24px; font-weight: 800; display: flex; gap: 12px; align-items: center; }
+  .checks div::before { content: '✓'; width: 36px; height: 36px; border-radius: 50%; background: #22c55e; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 900; }
+  .sk { position: relative; display: inline-block; }
+  .strike { position: absolute; left: -8px; right: -8px; top: 50%; height: 9px; background: #e11d48; border-radius: 6px; transform-origin: left center; }
+  .cap { position: absolute; left: 30px; right: 30px; text-align: center; }
+  .badge-big { display: inline-block; background: #fff; color: var(--ink); font-weight: 900; font-size: 24px; padding: 12px 20px; border-radius: 18px; box-shadow: 0 14px 28px rgba(0,0,0,.3); }
+  .ticket { position: absolute; width: 300px; left: 120px; top: 260px; overflow: hidden; border-radius: 4px; filter: drop-shadow(0 26px 40px rgba(0,0,0,.45)); }
+  .ticket img { width: 100%; display: block; }
+  .printer { position: absolute; left: 90px; top: 220px; width: 360px; height: 58px; background: linear-gradient(#374151, #111827); border-radius: 18px; box-shadow: 0 20px 40px rgba(0,0,0,.4); }
+  .printer::after { content: ''; position: absolute; left: 26px; right: 26px; bottom: 12px; height: 8px; background: #000; border-radius: 6px; }
+  #bar { position: absolute; left: 0; top: 0; height: 6px; background: var(--amber2); z-index: 10; }
+  .wm { position: absolute; left: 0; right: 0; bottom: 64px; text-align: center; font-weight: 800; font-size: 15px; opacity: .7; z-index: 9; letter-spacing: .3px; }
+</style></head>
+<body><div id="stage"></div>
+<script>
+const V = new URLSearchParams(location.search).get('v') || 'clientes';
+const IMG = n => `assets/${n}.png`;
+const URL_LP = 'jesusriossantander-png.github.io/kiosco';
+
+/* ---------- Guiones ---------- */
+const VIDEOS = {
+  clientes: { dur: 26, scenes: [
+    { d: 3.2, bg: 'bg-amber', html: `
+      <div class="chip dark" data-a="pop" data-d=".1">📍 En tu barrio</div>
+      <div class="t-xl" style="margin-top:26px" data-a="up" data-d=".25">¿Se te antojó<br>algo? 🤤</div>
+      <div class="t-s" style="margin-top:18px;color:#3b2a06" data-a="up" data-d=".6">Bebidas frías, golosinas, almacén y más</div>
+      <div class="tile" style="left:40px;top:560px" data-a="pop" data-d=".7" data-float="0">🥤</div>
+      <div class="tile" style="left:214px;top:610px" data-a="pop" data-d=".85" data-float="1">🍫</div>
+      <div class="tile" style="left:388px;top:560px" data-a="pop" data-d="1" data-float="2">🍟</div>
+      <div class="tile" style="left:127px;top:745px" data-a="pop" data-d="1.15" data-float="3">🧉</div>
+      <div class="tile" style="left:301px;top:745px" data-a="pop" data-d="1.3" data-float="4">🍪</div>` },
+    { d: 4.4, bg: 'bg-teal', html: `
+      <div class="t-l" data-a="up" data-d=".05">Tu kiosco,<br><span class="hl">ahora en tu celular</span> 📱</div>
+      <div class="phone" style="left:120px;top:330px" data-a="rise" data-d=".25" data-u=".7"><div class="scr">
+        <img src="${IMG('cli-home')}" data-kb="1"><img src="${IMG('cli-rubro')}" data-a="fade" data-d="2.4" data-u=".4"></div></div>
+      <div class="badge-big" style="position:absolute;left:24px;top:470px" data-a="slideR" data-d="1.1">🔎 Buscá o escaneá</div>
+      <div class="badge-big" style="position:absolute;right:24px;top:640px" data-a="slideL" data-d="1.6">💲 Precios al día</div>` },
+    { d: 4.6, bg: 'bg-red', html: `
+      <div class="chip" data-a="pop" data-d=".05">🔥 Solo esta semana</div>
+      <div class="t-l" style="margin-top:16px" data-a="up" data-d=".15">Ofertas que<br>se notan</div>
+      <div class="ofs">
+        <div class="of" data-a="pop" data-d=".5"><span class="pct" data-pulse="1">-15%</span><div class="e">🥤</div><span class="tg">Llevando 2</span><h4>Coca-Cola 1,5 L</h4><s>$ 4.600</s><b>$ 3.910</b></div>
+        <div class="of" data-a="pop" data-d=".75"><span class="pct" data-pulse="1">-20%</span><div class="e">🍫</div><span class="tg">Pack x3</span><h4>Alfajor triple</h4><s>$ 2.400</s><b>$ 1.920</b></div>
+        <div class="of" data-a="pop" data-d="1"><span class="pct" data-pulse="1">-10%</span><div class="e">🧉</div><span class="tg">Mateada</span><h4>Yerba mate 500 g</h4><s>$ 2.600</s><b>$ 2.340</b></div>
+        <div class="of" data-a="pop" data-d="1.25"><span class="pct" data-pulse="1">-12%</span><div class="e">🍟</div><span class="tg">Para el finde</span><h4>Papas fritas 85 g</h4><s>$ 1.700</s><b>$ 1.500</b></div>
+      </div>` },
+    { d: 4.8, bg: 'bg-cream', html: `
+      <div class="t-l" data-a="up" data-d=".05">Pedí en <span class="hl-teal">3 toques</span></div>
+      <div class="t-s" style="margin-top:10px" data-a="up" data-d=".2">Sin registrarte · sin descargar nada</div>
+      <div class="phone" style="left:120px;top:290px" data-a="rise" data-d=".2" data-u=".6"><div class="scr">
+        <img src="${IMG('cli-home2')}"><img src="${IMG('cli-cart')}" data-a="fade" data-d="2.3" data-u=".4"></div></div>
+      <div class="steps">
+        <div class="step" data-a="pop" data-d=".9"><i>1</i>Elegí</div>
+        <div class="step" data-a="pop" data-d="1.6"><i>2</i>Enviá por WhatsApp</div>
+        <div class="step" data-a="pop" data-d="2.3"><i>3</i>Retirá o recibí</div>
+      </div>` },
+    { d: 4.0, bg: 'bg-teal', html: `
+      <div class="t-l" data-a="up" data-d=".05">Y además…</div>
+      <div class="rows">
+        <div class="row" data-a="slideR" data-d=".3"><div class="i">🛵</div><div><b>Envío a domicilio</b><span>Gratis desde $15.000</span></div></div>
+        <div class="row" data-a="slideR" data-d=".6"><div class="i">📱</div><div><b>Pagás como quieras</b><span>QR, débito, crédito o efectivo</span></div></div>
+        <div class="row" data-a="slideR" data-d=".9"><div class="i">📶</div><div><b>Recargas y servicios</b><span>Celular, SUBE, luz, gas</span></div></div>
+        <div class="row" data-a="slideR" data-d="1.2"><div class="i">🕒</div><div><b>Abierto todos los días</b><span>De 8 a 24 h</span></div></div>
+      </div>` },
+    { d: 4.2, bg: 'bg-amber', html: `
+      <img class="logo" src="assets/logo.png" data-a="pop" data-d=".05" style="margin-top:60px">
+      <div class="t-l" style="margin-top:26px" data-a="up" data-d=".2">Mi Maxikiosco</div>
+      <div class="t-s" style="margin-top:10px;color:#3b2a06" data-a="up" data-d=".35">Ofertas nuevas todas las semanas</div>
+      <div style="margin-top:44px" data-a="pop" data-d=".6"><div class="cta" data-pulse="1" style="background:#0f766e;color:#fff;box-shadow:0 18px 40px rgba(15,118,110,.45)">🛒 Pedí ahora</div></div>
+      <div class="t-m" style="margin-top:34px" data-a="up" data-d=".9">Link en la bio 👆</div>
+      <div class="url" style="margin-top:14px;background:rgba(16,32,30,.1)" data-a="up" data-d="1.1">${URL_LP}</div>` },
+  ] },
+
+  duenos: { dur: 32, scenes: [
+    { d: 3.8, bg: 'bg-deep', html: `
+      <div class="t-l" style="margin-top:40px" data-a="up" data-d=".05">¿Todavía anotás<br>el fiado en una<br><span class="sk">libreta?<i class="strike" data-a="strike" data-d="1.6" data-u=".35"></i></span></div>
+      <div class="emo" style="left:200px;top:470px;font-size:130px" data-a="pop" data-d=".5" data-shake="1">📒</div>
+      <div class="t-m" style="position:absolute;top:700px;left:30px;right:30px" data-a="up" data-d="2.1">Hay una forma <span class="hl">mejor</span> 👇</div>` },
+    { d: 4.2, bg: 'bg-teal', html: `
+      <div class="t-l" data-a="up" data-d=".05">Tu maxikiosco,<br><span class="hl">bajo control</span></div>
+      <div class="t-s" style="margin-top:12px" data-a="up" data-d=".25">Desde la PC o el celular</div>
+      <div class="laptop" style="left:20px;top:360px" data-a="rise" data-d=".3" data-u=".7"><div class="lid"><div class="scr"><img src="${IMG('dash')}" data-kb="1" style="object-position:0 -60px"></div></div><div class="base"></div></div>
+      <div class="badge-big" style="position:absolute;left:40px;top:690px" data-a="slideR" data-d="1.3">💵 Ventas del día</div>
+      <div class="badge-big" style="position:absolute;right:40px;top:760px" data-a="slideL" data-d="1.7">📈 Ganancia real</div>` },
+    { d: 4.6, bg: 'bg-cream', html: `
+      <div class="t-l" data-a="up" data-d=".05">Vendé en <span class="hl-teal">3 toques</span></div>
+      <div class="t-s" style="margin-top:10px" data-a="up" data-d=".2">Escaneá con el lector o la cámara del celular</div>
+      <div class="laptop" style="left:20px;top:300px" data-a="rise" data-d=".2" data-u=".6"><div class="lid"><div class="scr"><img src="${IMG('pos')}"><img src="${IMG('cobro')}" data-a="fade" data-d="2" data-u=".35"></div></div><div class="base"></div></div>
+      <div class="rows" style="position:absolute;top:640px;left:34px;right:34px;width:auto;margin:0;gap:12px">
+        <div class="row" data-a="slideR" data-d="1"><div class="i">📷</div><div><b>Escaneo sin demoras</b><span>Lector USB o cámara</span></div></div>
+        <div class="row" data-a="slideR" data-d="2.4"><div class="i">💳</div><div><b>Todos los medios</b><span>Efectivo, QR, débito, fiado</span></div></div>
+      </div>` },
+    { d: 3.6, bg: 'bg-teal', html: `
+      <div class="t-l" data-a="up" data-d=".05">Ticket <span class="hl">al instante</span> 🧾</div>
+      <div class="ticket" data-a="print" data-d=".35" data-u="1.6"><img src="${IMG('ticket')}"></div>
+      <div class="printer" data-a="fade" data-d=".1"></div>` },
+    { d: 7.2, bg: 'bg-deep', html: `
+      <div class="t-l" data-a="up" data-d=".05">Todo en <span class="hl">un solo lugar</span></div>
+      <div class="laptop" style="left:20px;top:250px" data-a="rise" data-d=".15" data-u=".6"><div class="lid"><div class="scr">
+        <img src="${IMG('stock')}"><img src="${IMG('fiado')}" data-a="fade" data-d="1.8" data-u=".3"><img src="${IMG('reportes')}" data-a="fade" data-d="3.6" data-u=".3"><img src="${IMG('dash')}" data-a="fade" data-d="5.4" data-u=".3" style="object-position:0 -60px"></div></div><div class="base"></div></div>
+      <div class="cap" style="top:600px" data-a="up" data-d=".4" data-out="1.8"><div class="t-m">📦 Stock y vencimientos</div><div class="t-s" style="margin-top:8px">Alertas de reposición y conteo con la cámara</div></div>
+      <div class="cap" style="top:600px" data-a="up" data-d="1.9" data-out="3.6"><div class="t-m">📒 Fiado digital</div><div class="t-s" style="margin-top:8px">Cuenta corriente con límite por cliente</div></div>
+      <div class="cap" style="top:600px" data-a="up" data-d="3.7" data-out="5.4"><div class="t-m">📊 Reportes y rentabilidad</div><div class="t-s" style="margin-top:8px">Qué se vende, cuánto ganás y qué falta</div></div>
+      <div class="cap" style="top:600px" data-a="up" data-d="5.5"><div class="t-m">💰 Caja con arqueo ciego</div><div class="t-s" style="margin-top:8px">Diferencias por turno y por empleado</div></div>` },
+    { d: 4.0, bg: 'bg-amber', html: `
+      <div class="t-l" data-a="up" data-d=".05">Y tus clientes te<br>compran por WhatsApp 💬</div>
+      <div class="phone" style="left:120px;top:300px" data-a="rise" data-d=".2" data-u=".6"><div class="scr">
+        <img src="${IMG('cli-home')}"><img src="${IMG('cli-cart')}" data-a="fade" data-d="2" data-u=".35"></div></div>` },
+    { d: 4.6, bg: 'bg-teal', html: `
+      <img class="logo" src="assets/logo.png" data-a="pop" data-d=".05" style="margin-top:20px">
+      <div class="t-l" style="margin-top:22px" data-a="up" data-d=".2">Probá la demo<br><span class="hl">gratis</span></div>
+      <div class="checks">
+        <div data-a="slideR" data-d=".5">Sin instalar nada</div>
+        <div data-a="slideR" data-d=".7">Funciona sin internet</div>
+        <div data-a="slideR" data-d=".9">PC, tablet y celular</div>
+      </div>
+      <div style="margin-top:36px" data-a="pop" data-d="1.2"><div class="cta" data-pulse="1">👉 Probala ahora</div></div>
+      <div class="url" style="margin-top:22px" data-a="up" data-d="1.5">${URL_LP}</div>` },
+  ] },
+};
+
+/* ---------- Motor de animación (determinista: render(t) dibuja el cuadro t) ---------- */
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x));
+const eOut = p => 1 - Math.pow(1 - p, 3);
+const eBack = p => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2); };
+const video = VIDEOS[V];
+const stage = document.getElementById('stage');
+let t0 = 0;
+const scenes = video.scenes.map(s => {
+  const el = document.createElement('div');
+  el.className = 'sc ' + s.bg;
+  el.innerHTML = s.html;
+  stage.append(el);
+  const o = { ...s, el, start: t0, end: t0 + s.d, items: [...el.querySelectorAll('[data-a],[data-kb],[data-float],[data-pulse],[data-shake]')] };
+  t0 += s.d;
+  return o;
+});
+video.dur = t0;
+const bar = document.createElement('div'); bar.id = 'bar'; stage.append(bar);
+const wm = document.createElement('div'); wm.className = 'wm'; stage.append(wm);
+
+function render(t) {
+  bar.style.width = (t / video.dur * 100) + '%';
+  for (const s of scenes) {
+    const lt = t - s.start;
+    const vis = lt >= -0.001 && t < s.end + 0.3;
+    if (!vis) { s.el.style.opacity = 0; s.el.style.display = 'none'; continue; }
+    s.el.style.display = 'flex';
+    const inP = eOut(clamp(lt / 0.3));
+    const outP = clamp((t - s.end) / 0.3);
+    s.el.style.opacity = s === scenes[0] ? (1 - outP) : inP * (1 - outP);
+    s.el.style.zIndex = scenes.indexOf(s);
+    s.el.style.transform = `scale(${1.04 - 0.04 * inP + 0.03 * outP})`;
+    for (const el of s.items) {
+      const a = el.dataset.a, d = +(el.dataset.d || 0), u = +(el.dataset.u || 0.5);
+      const p = clamp((lt - d) / u);
+      let op = 1, x = 0, y = 0, sc = 1, rot = 0, extra = '';
+      if (a === 'up') { const q = eOut(p); op = q; y = 40 * (1 - q); }
+      else if (a === 'rise') { const q = eOut(p); op = clamp(p * 2); y = 380 * (1 - q); }
+      else if (a === 'pop') { const q = eBack(p); op = clamp(p * 3); sc = 0.3 + 0.7 * q; }
+      else if (a === 'fade') { op = eOut(p); }
+      else if (a === 'slideR') { const q = eOut(p); op = q; x = -260 * (1 - q); }
+      else if (a === 'slideL') { const q = eOut(p); op = q; x = 260 * (1 - q); }
+      else if (a === 'strike') { op = p > 0 ? 1 : 0; extra = `scaleX(${eOut(p)})`; }
+      else if (a === 'print') { op = p > 0 ? 1 : 0; el.style.clipPath = `inset(0 0 ${100 - eOut(p) * 100}% 0)`; y = -40 + 40 * eOut(p); }
+      if (el.dataset.out) { const q = clamp((lt - +el.dataset.out) / 0.25); op *= 1 - q; y -= 20 * q; }
+      if (el.dataset.kb) sc *= 1 + 0.06 * clamp(lt / s.d);
+      if (el.dataset.float) y += Math.sin(lt * 2.2 + +el.dataset.float) * 7;
+      if (el.dataset.pulse) sc *= 1 + 0.045 * Math.max(0, Math.sin(lt * 5.5));
+      if (el.dataset.shake && lt > d + 0.4 && lt < 1.6) rot = Math.sin(lt * 40) * 6;
+      el.style.opacity = op;
+      el.style.transform = `translate(${x}px, ${y}px) scale(${sc}) rotate(${rot}deg) ${extra}`;
+    }
+  }
+}
+window.VIDEO_DUR = video.dur;
+window.render = render;
+render(0);
+</script></body></html>

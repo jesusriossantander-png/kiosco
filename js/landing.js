@@ -53,6 +53,7 @@ const PROMOS_TICKER = ['🔥 Ofertas nuevas todas las semanas', '🍫 Martes 3x2
     </article>`;
   }).join('') : UI.empty('Pronto nuevas ofertas');
 
-  const top = cat.productos.filter(p => p.d).concat(cat.productos.filter(p => !p.d)).slice(0, 10);
+  const pub = cat.productos.filter(p => p.r !== 'Cigarrillos');
+  const top = pub.filter(p => p.d).concat(pub.filter(p => !p.d)).slice(0, 10);
   $('#lp-top').innerHTML = top.map(p => `<a class="mini" href="cliente.html"><span>${p.e}</span><b>${esc(p.n)}</b><small>${fmt(p.p)}${p.k ? ' /kg' : ''}</small></a>`).join('');
 })();

@@ -122,3 +122,7 @@ data/catalogo.json            catálogo publicado para clientes
 ```
 
 Al publicar cambios, subí el número de `VERSION` en `sw.js` para que los dispositivos tomen la versión nueva.
+
+## Marketing
+
+En `marketing/` están los videos para Facebook/Instagram (`promo-clientes.mp4`, `promo-duenos.mp4`), las portadas y el plan de campaña con textos listos (`marketing/CAMPANA.md`).

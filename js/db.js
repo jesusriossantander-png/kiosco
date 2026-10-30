@@ -104,7 +104,7 @@ const DB = (() => {
     d.productos = P.map(([codigo, nombre, rubro, marca, costo, precio, stock, stockMin, ex = {}]) => ({
       id: uid(), codigo, codigosAlt: [], nombre, rubro, marca, costo, precios: [precio, r10(precio * 0.9), 0, 0, 0],
       stock, stockDeposito: 0, stockMin, porPeso: false, plu: '', emoji: '', imagen: '', lotes: [],
-      publicar: true, favorito: false, activo: true, proveedorId: provDe(rubro), ...ex,
+      publicar: rubro !== 'Cigarrillos', favorito: false, activo: true, proveedorId: provDe(rubro), ...ex,
       ...(ex.lotes ? { lotes: ex.lotes.map(l => ({ id: uid(), ...l })) } : {}),
     }));
     d.clientes = [
