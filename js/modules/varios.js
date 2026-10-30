@@ -211,7 +211,8 @@ const Devoluciones = (() => {
           r.push(['Ticket original', '#' + v.nro], ['Fecha', fechaHora(d.fecha)], ['Aprobó', d.aprobadoPor], '-');
           items.forEach(i => r.push(i.nombre, [`  ${fmtN(i.cant, 3)} u.`, fmt(i.monto)]));
           r.push('-', ['TOTAL DEVUELTO', fmt(total)], ['Reintegro', { efectivo: 'Efectivo', original: 'Medio original', ctacte: 'Cuenta corriente', cambio: 'Cambio de producto' }[fd.reintegro]]);
-          if (await UI.confirm('Devolución registrada. ¿Imprimir comprobante?', { ok: 'Imprimir', title: 'Listo' })) Ticket.imprimir(r);
+          UI.toast('Devolución registrada', 'ok');
+          Ticket.imprimir(r, { codigo: 'D' + String(d.nro).padStart(7, '0'), titulo: `Comprobante de devolución #${d.nro}` });
           if (fd.reintegro === 'cambio' && App.can('pos')) UI.toast('Registrá el producto de cambio en Vender', 'info', 5000);
           App.refresh();
         },

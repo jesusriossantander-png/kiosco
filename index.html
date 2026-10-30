@@ -3,79 +3,142 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Panel Maxikiosco</title>
-  <meta name="description" content="Panel de gestión del maxikiosco: ventas, caja, stock, precios, clientes y reportes.">
-  <meta name="theme-color" content="#0f766e">
-  <link rel="manifest" href="manifest.json">
+  <title>Maxikiosco · Ofertas y pedidos online</title>
+  <meta name="description" content="Tu maxikiosco de barrio: ofertas de la semana, recargas, pago de servicios y pedidos por WhatsApp desde el celular.">
+  <meta name="theme-color" content="#0b5f58">
   <link rel="icon" href="img/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="img/icon-192.png">
-  <meta name="apple-mobile-web-app-capable" content="yes">
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/landing.css">
 </head>
-<body>
-  <div id="login" class="login hidden">
-    <div class="login-card">
-      <img src="img/icon.svg" alt="" class="login-logo">
-      <h1 id="login-negocio">Maxikiosco</h1>
-      <p class="muted">Elegí tu usuario e ingresá tu PIN</p>
-      <div id="login-users" class="login-users"></div>
-      <form id="login-form" class="hidden" autocomplete="off">
-        <div class="login-sel" id="login-sel"></div>
-        <input id="login-pin" type="password" inputmode="numeric" class="input xl center" placeholder="PIN" maxlength="8" aria-label="PIN">
-        <div class="pinpad">
-          <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
-          <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
-          <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
-          <button type="button" data-k="del" aria-label="Borrar">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" class="ok">Entrar</button>
-        </div>
-        <button type="button" class="btn ghost" id="login-back">← Cambiar usuario</button>
-      </form>
-      <p class="muted small" id="login-hint"></p>
-      <p class="small"><a href="cliente.html">Ir a la app de clientes →</a></p>
+<body class="lp">
+  <header class="lp-nav" id="top">
+    <div class="lp-in">
+      <a class="lp-brand" href="#top"><img src="img/icon.svg" alt=""><span data-n="nombre">Mi Maxikiosco</span></a>
+      <nav class="lp-links" aria-label="Secciones">
+        <a href="#ofertas">Ofertas</a><a href="#servicios">Servicios</a><a href="#como">Cómo pedir</a><a href="#contacto">Contacto</a>
+      </nav>
+      <button class="btn primary" data-entrar>Entrar a la app</button>
     </div>
+  </header>
+
+  <section class="lp-hero">
+    <div class="lp-in lp-hero-grid">
+      <div>
+        <span class="lp-pill" id="lp-abierto">🟢 Abierto todos los días</span>
+        <h1>Todo lo que necesitás, <em>a la vuelta de tu casa</em>.</h1>
+        <p class="lp-lead">Bebidas frías, golosinas, almacén, cigarrillos, recargas y pago de servicios. Mirá las ofertas, armá tu pedido desde el celular y retiralo o recibilo en tu casa.</p>
+        <div class="lp-cta">
+          <a class="btn xl lp-amber" href="cliente.html">🛒 Hacer mi pedido</a>
+          <a class="btn lg lp-ghost" href="#ofertas">Ver ofertas</a>
+        </div>
+        <ul class="lp-badges"><li>📱 Pagás con QR</li><li>🛵 Envío a domicilio</li><li>📶 Recargas al instante</li></ul>
+      </div>
+      <div class="lp-collage" aria-hidden="true">
+        <div class="tile t1">🥤</div><div class="tile t2">🍫</div><div class="tile t3">🍪</div>
+        <div class="tile t4">🧃</div><div class="tile t5">🍟</div><div class="tile t6">🧉</div>
+        <div class="sticker">Ofertas<br><b>de la semana</b></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="lp-ticker" aria-label="Promociones">
+    <div class="lp-track" id="lp-track"></div>
   </div>
 
-  <div id="app" class="layout hidden">
-    <aside class="sidebar" id="sidebar">
-      <div class="brand"><img src="img/icon.svg" alt=""><div><b id="brand-name">Mi Maxikiosco</b><small id="brand-suc"></small></div></div>
-      <nav class="nav" id="nav" aria-label="Secciones"></nav>
-      <div class="side-foot"><div id="side-user"></div><button class="btn sm block" id="btn-logout">Cerrar sesión</button></div>
-    </aside>
-    <div class="backdrop" id="backdrop"></div>
-    <div class="main">
-      <header class="topbar">
-        <button class="icon-btn menu-btn" id="menu-btn" aria-label="Abrir menú">☰</button>
-        <h1 id="title"></h1>
-        <span id="net" class="pill"></span>
-        <span id="caja-pill" class="pill"></span>
-      </header>
-      <main id="view" class="view"></main>
-    </div>
-    <nav class="bottombar" id="bottombar" aria-label="Accesos rápidos">
-      <a href="#dashboard">🏠<span>Inicio</span></a>
-      <a href="#pos">🛒<span>Vender</span></a>
-      <a href="#" id="bb-scan">📷<span>Escanear</span></a>
-      <a href="#stock">📦<span>Stock</span></a>
-      <a href="#" id="bb-menu">☰<span>Menú</span></a>
-    </nav>
-  </div>
+  <main>
+    <section class="lp-sec" id="ofertas">
+      <div class="lp-in">
+        <div class="lp-head"><h2>🔥 Ofertas de la semana</h2><p>Precios especiales mostrando esta página en el local o pidiendo por la app.</p></div>
+        <div class="lp-ofertas" id="lp-ofertas"></div>
+        <div class="lp-promos">
+          <div class="promo p1"><span>🍫</span><div><b>Martes de alfajores</b><p>Llevá 3 y pagá 2 en alfajores seleccionados.</p></div></div>
+          <div class="promo p2"><span>💵</span><div><b>10% off en efectivo</b><p>En compras desde $20.000 abonando en efectivo.</p></div></div>
+          <div class="promo p3"><span>🛵</span><div><b>Envío sin cargo</b><p>Pedidos por la app desde $15.000 dentro del barrio.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-sec alt">
+      <div class="lp-in">
+        <div class="lp-head"><h2>⭐ Lo más pedido</h2><p>Los favoritos del barrio, siempre en stock.</p></div>
+        <div class="lp-row" id="lp-top"></div>
+        <div class="center mt"><a class="btn lg primary" href="cliente.html">Ver todo el catálogo →</a></div>
+      </div>
+    </section>
+
+    <section class="lp-sec" id="servicios">
+      <div class="lp-in">
+        <div class="lp-head"><h2>Mucho más que un kiosco</h2><p>Resolvé todo en un solo lugar.</p></div>
+        <div class="lp-serv">
+          <div><span>📶</span><b>Recargas</b><p>Celular, SUBE, TV e internet.</p></div>
+          <div><span>💡</span><b>Pago de servicios</b><p>Luz, gas, agua y más.</p></div>
+          <div><span>📱</span><b>Todos los medios de pago</b><p>Efectivo, débito, crédito, QR y transferencia.</p></div>
+          <div><span>🛵</span><b>Envío a domicilio</b><p>Pedí por WhatsApp desde la app.</p></div>
+          <div><span>🧊</span><b>Bebidas bien frías</b><p>Heladeras llenas todo el día.</p></div>
+          <div><span>📒</span><b>Cuenta corriente</b><p>Para clientes de confianza del barrio.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-sec alt" id="como">
+      <div class="lp-in">
+        <div class="lp-head"><h2>Pedí en 3 pasos</h2><p>Sin registrarte y sin descargar nada.</p></div>
+        <ol class="lp-steps">
+          <li><span>1</span><b>Elegí tus productos</b><p>Buscalos por nombre, rubro o escaneando el código con la cámara.</p></li>
+          <li><span>2</span><b>Mandá el pedido</b><p>Se arma solo un mensaje de WhatsApp con todo el detalle.</p></li>
+          <li><span>3</span><b>Retiralo o recibilo</b><p>Te avisamos cuando está listo. Pagás como prefieras.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="lp-sec" id="app">
+      <div class="lp-in">
+        <div class="lp-head"><h2>Entrar a la aplicación</h2><p>Elegí cómo querés ingresar.</p></div>
+        <div class="lp-access">
+          <a class="acc acc-cli" href="cliente.html">
+            <span class="ic">🛍️</span><b>Soy cliente</b>
+            <p>Mirá precios, consultá productos con la cámara y hacé tu pedido.</p>
+            <span class="go">Abrir la app →</span>
+          </a>
+          <a class="acc acc-pan" href="panel.html">
+            <span class="ic">🧾</span><b>Panel del negocio</b>
+            <p>Ventas, caja, stock, precios, fiado y reportes. Funciona en PC y celular.</p>
+            <span class="demo">Demo · Administrador PIN <b>1234</b> · Cajero/a PIN <b>0000</b></span>
+            <span class="go">Entrar al panel →</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="lp-sec alt" id="contacto">
+      <div class="lp-in lp-contact">
+        <div>
+          <h2>Visitanos</h2>
+          <ul class="list-plain mt">
+            <li><span>📍 <span data-n="direccion">Av. Principal 1234 (dirección de ejemplo)</span></span><a class="btn sm" id="lp-map" target="_blank" rel="noopener" href="#">Cómo llegar</a></li>
+            <li><span>🕒 <span data-n="horario">Todos los días de 8 a 24 h</span></span></li>
+            <li><span>📞 <span data-n="telefono">Teléfono a confirmar</span></span></li>
+          </ul>
+        </div>
+        <div class="lp-wa">
+          <span>💬</span><b>¿Preferís escribirnos?</b><p>Consultá stock, precios o encargá lo que necesites.</p>
+          <a class="btn lg lp-amber" id="lp-wa" href="cliente.html" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="lp-foot">
+    <div class="lp-in"><span>© <span id="lp-year"></span> <span data-n="nombre">Mi Maxikiosco</span> · Precios sujetos a cambio y disponibilidad.</span>
+      <span><a href="cliente.html">App de clientes</a> · <a href="panel.html">Panel del negocio</a></span></div>
+  </footer>
+
+  <a class="lp-float" href="cliente.html" aria-label="Hacer pedido">🛒</a>
 
   <script src="js/kv.js"></script>
   <script src="js/ui.js"></script>
-  <script src="js/db.js"></script>
-  <script src="js/hardware.js"></script>
-  <script src="js/scanner.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/modules/caja.js"></script>
-  <script src="js/modules/pos.js"></script>
-  <script src="js/modules/productos.js"></script>
-  <script src="js/modules/stock.js"></script>
-  <script src="js/modules/precios.js"></script>
-  <script src="js/modules/clientes.js"></script>
-  <script src="js/modules/proveedores.js"></script>
-  <script src="js/modules/reportes.js"></script>
-  <script src="js/modules/varios.js"></script>
-  <script src="js/modules/admin.js"></script>
-  <script>App.init();</script>
+  <script src="js/catalogo.js"></script>
+  <script src="js/landing.js"></script>
 </body>
 </html>

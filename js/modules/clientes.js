@@ -54,7 +54,7 @@ const Clientes = (() => {
           if (f.imprimir) {
             const r = Ticket.cabecera('RECIBO DE PAGO');
             r.push(['Fecha', fechaHora(Date.now())], ['Cliente', c.nombre], ['Medio', medioNombre(f.medio)], '-', ['PAGO', fmt(f.monto)], ['Saldo pendiente', fmt(c.saldo)]);
-            Ticket.imprimir(r);
+            Ticket.imprimir(r, { titulo: 'Recibo de pago' });
           }
           if (f.medio === 'efectivo' && enCaja && HW.pWriter) HW.abrirCajon();
           after ? after() : App.refresh();

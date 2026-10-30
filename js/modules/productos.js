@@ -276,8 +276,8 @@ const Productos = (() => {
     v.innerHTML = `<div class="toolbar">
         <input class="input grow" id="pr-q" placeholder="Buscar por nombre, código, marca…" value="${esc(filtro.q)}">
         <button class="btn" id="pr-cam" title="Buscar escaneando">📷</button>
-        <select class="input" id="pr-rubro" style="width:auto"><option value="">Todos los rubros</option>${opts(cfg.rubros, filtro.rubro)}</select>
-        <select class="input" id="pr-estado" style="width:auto">${opts([['', 'Todos'], ['bajo', 'Stock bajo'], ['sin', 'Sin stock'], ['inactivo', 'Inactivos'], ['peso', 'Por peso']], filtro.estado, x => x[0], x => x[1])}</select>
+        <select class="input" id="pr-rubro" style="width:auto" aria-label="Filtrar por rubro"><option value="">Todos los rubros</option>${opts(cfg.rubros, filtro.rubro)}</select>
+        <select class="input" id="pr-estado" style="width:auto" aria-label="Filtrar por estado del stock">${opts([['', 'Todos'], ['bajo', 'Stock bajo'], ['sin', 'Sin stock'], ['inactivo', 'Inactivos'], ['peso', 'Por peso']], filtro.estado, x => x[0], x => x[1])}</select>
       </div>
       <div class="toolbar">
         <button class="btn primary" id="pr-new">+ Nuevo producto</button>

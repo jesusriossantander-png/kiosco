@@ -187,7 +187,7 @@ const Stock = (() => {
 
   function tabMovs(v) {
     let tipo = '';
-    v.innerHTML = `<div class="toolbar"><input class="input grow" id="mv-q" placeholder="Filtrar por producto…"><select class="input" id="mv-t" style="width:auto"><option value="">Todos</option>${opts(['venta', 'entrada', 'salida', 'ajuste', 'conteo', 'compra', 'devolucion', 'transferencia', 'importacion', 'alta'], '')}</select><button class="btn" id="mv-exp">📤 Exportar</button></div><div class="card" style="padding:0"><div class="table-wrap" style="border:0"><table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Motivo</th><th class="num">Cant.</th><th class="num">Stock</th><th>Usuario</th></tr></thead><tbody id="mv-b"></tbody></table></div></div>`;
+    v.innerHTML = `<div class="toolbar"><input class="input grow" id="mv-q" placeholder="Filtrar por producto…"><select class="input" id="mv-t" style="width:auto" aria-label="Tipo de movimiento"><option value="">Todos</option>${opts(['venta', 'entrada', 'salida', 'ajuste', 'conteo', 'compra', 'devolucion', 'transferencia', 'importacion', 'alta'], '')}</select><button class="btn" id="mv-exp">📤 Exportar</button></div><div class="card" style="padding:0"><div class="table-wrap" style="border:0"><table class="table"><thead><tr><th>Fecha</th><th>Producto</th><th>Tipo</th><th>Motivo</th><th class="num">Cant.</th><th class="num">Stock</th><th>Usuario</th></tr></thead><tbody id="mv-b"></tbody></table></div></div>`;
     const filtrados = () => { const q = norm($('#mv-q', v).value); return DB.d.movimientos.filter(m => (!tipo || m.tipo === tipo) && (!q || norm(m.nombre + ' ' + m.codigo).includes(q))).slice(-400).reverse(); };
     const draw = () => {
       const list = filtrados();

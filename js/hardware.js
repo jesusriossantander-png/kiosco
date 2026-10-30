@@ -89,13 +89,44 @@ const Ticket = {
   html(rows) {
     return rows.map(r => {
       if (r === '-') return '<hr>';
-      if (Array.isArray(r)) return `<div class="lr"><span>${esc(r[0])}</span><span>${esc(r[1])}</span></div>`;
+      if (Array.isArray(r)) return `<div class="lr ${r[2] || ''}"><span>${esc(r[0])}</span><span>${esc(r[1])}</span></div>`;
       if (typeof r === 'object') return `<div class="c ${r.b ? 'b' : ''}">${esc(r.c)}</div>`;
       return `<div>${esc(r)}</div>`;
     }).join('');
   },
 
-  async imprimir(rows) {
+  /* Demo: muestra el ticket simulado en pantalla tal como saldría en la impresora térmica de 80 mm */
+  imprimir(rows, { codigo = '', titulo = 'Ticket' } = {}) {
+    const n = Date.now() % 100000000;
+    const cod = codigo || String(n).padStart(8, '0');
+    const body = h(`<div class="tk-wrap"><div class="tk-paper">${this.html(rows)}
+      <div class="tk-bars" aria-hidden="true">${this.barras(cod)}</div><div class="c tk-cod">${esc(cod)}</div></div>
+      <p class="muted small center mt">Vista simulada del ticket térmico de 80 mm${HW.pWriter ? ' · impresora conectada' : ''}</p></div>`);
+    UI.modal({
+      title: `🧾 ${titulo}`, body, size: 'ticket',
+      actions: [
+        { label: '🖨️ Imprimir', onClick: () => { this.imprimirReal(rows); return false; } },
+        { label: 'Listo (Enter)', class: 'primary', id: 'tk-ok' },
+      ],
+      onOpen: root => { const b = $('#tk-ok', root); if (b) b.focus(); },
+      onClose: () => { const q = $('#pos-q'); if (q && !isTouch) setTimeout(() => q.focus()); },
+    });
+  },
+
+  /* Código de barras decorativo a partir del número del comprobante */
+  barras(cod) {
+    let out = '';
+    let x = 0;
+    const digits = ('1' + cod + '9').split('').map(Number);
+    digits.forEach((d, i) => {
+      const w1 = 1 + (d % 3), w2 = 1 + ((d + i) % 2), w3 = 1 + ((d * 7 + i) % 3);
+      out += `<i style="left:${x}px;width:${w1}px"></i>`; x += w1 + w2;
+      out += `<i style="left:${x}px;width:${w3}px"></i>`; x += w3 + 1 + (d % 2);
+    });
+    return `<div style="width:${x}px">${out}</div>`;
+  },
+
+  async imprimirReal(rows) {
     if (HW.pWriter) {
       const enc = new TextEncoder();
       const ok = await HW.enviar([0x1b, 0x40, ...enc.encode(this.texto(rows) + '\n\n\n\n'), 0x1d, 0x56, 0x42, 0x00]);
@@ -135,11 +166,11 @@ const Ticket = {
     });
     rows.push('-');
     if (v.descuento) rows.push(['Subtotal', fmt(v.subtotal)], [`Descuento ${v.descPct}%`, '-' + fmt(v.descuento)]);
-    rows.push(['TOTAL', fmt(v.total)]);
+    rows.push(['TOTAL', fmt(v.total), 'big']);
     v.pagos.forEach(p => rows.push([medioNombre(p.medio), fmt(p.monto)]));
     if (v.vuelto) rows.push(['Su vuelto', fmt(v.vuelto)]);
     rows.push('-', { c: 'Comprobante no válido como factura' }, { c: DB.g.config.negocio.mensajeTicket || '' });
-    return this.imprimir(rows);
+    return this.imprimir(rows, { codigo: String(v.nro).padStart(8, '0'), titulo: `Ticket de venta #${v.nro}` });
   },
 };
 

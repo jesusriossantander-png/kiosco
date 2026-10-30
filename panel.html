@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Panel Maxikiosco</title>
+  <meta name="description" content="Panel de gestión del maxikiosco: ventas, caja, stock, precios, clientes y reportes.">
+  <meta name="theme-color" content="#0f766e">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <div id="login" class="login hidden">
+    <div class="login-card">
+      <img src="img/icon.svg" alt="" class="login-logo">
+      <h1 id="login-negocio">Maxikiosco</h1>
+      <p class="muted">Elegí tu usuario e ingresá tu PIN</p>
+      <div id="login-users" class="login-users"></div>
+      <form id="login-form" class="hidden" autocomplete="off">
+        <div class="login-sel" id="login-sel"></div>
+        <input id="login-pin" type="password" inputmode="numeric" class="input xl center" placeholder="PIN" maxlength="8" aria-label="PIN">
+        <div class="pinpad">
+          <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+          <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+          <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+          <button type="button" data-k="del" aria-label="Borrar">⌫</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" class="ok">Entrar</button>
+        </div>
+        <button type="button" class="btn ghost" id="login-back">← Cambiar usuario</button>
+      </form>
+      <p class="muted small" id="login-hint"></p>
+      <p class="small"><a href="index.html">← Volver a la página del kiosco</a> · <a href="cliente.html">App de clientes</a></p>
+    </div>
+  </div>
+
+  <div id="app" class="layout hidden">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand"><img src="img/icon.svg" alt=""><div><b id="brand-name">Mi Maxikiosco</b><small id="brand-suc"></small></div></div>
+      <nav class="nav" id="nav" aria-label="Secciones"></nav>
+      <div class="side-foot"><div id="side-user"></div><button class="btn sm block" id="btn-logout">Cerrar sesión</button></div>
+    </aside>
+    <div class="backdrop" id="backdrop"></div>
+    <div class="main">
+      <header class="topbar">
+        <button class="icon-btn menu-btn" id="menu-btn" aria-label="Abrir menú">☰</button>
+        <h1 id="title"></h1>
+        <span id="net" class="pill"></span>
+        <span id="caja-pill" class="pill"></span>
+      </header>
+      <main id="view" class="view"></main>
+    </div>
+    <nav class="bottombar" id="bottombar" aria-label="Accesos rápidos">
+      <a href="#dashboard">🏠<span>Inicio</span></a>
+      <a href="#pos">🛒<span>Vender</span></a>
+      <a href="#" id="bb-scan">📷<span>Escanear</span></a>
+      <a href="#stock">📦<span>Stock</span></a>
+      <a href="#" id="bb-menu">☰<span>Menú</span></a>
+    </nav>
+  </div>
+
+  <script src="js/kv.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/hardware.js"></script>
+  <script src="js/scanner.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/modules/caja.js"></script>
+  <script src="js/modules/pos.js"></script>
+  <script src="js/modules/productos.js"></script>
+  <script src="js/modules/stock.js"></script>
+  <script src="js/modules/precios.js"></script>
+  <script src="js/modules/clientes.js"></script>
+  <script src="js/modules/proveedores.js"></script>
+  <script src="js/modules/reportes.js"></script>
+  <script src="js/modules/varios.js"></script>
+  <script src="js/modules/admin.js"></script>
+  <script>App.init();</script>
+</body>
+</html>

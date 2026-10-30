@@ -41,7 +41,7 @@ const DB = (() => {
           { id: 'fiado', nombre: 'Fiado (cta. cte.)', icon: '📒', activo: true },
         ],
         recargas: { empresas: ['Claro', 'Personal', 'Movistar', 'Tuenti', 'DirecTV', 'Flow', 'Edenor', 'Edesur', 'Metrogas', 'AySA', 'SUBE'], comision: 4 },
-        ticket: { imprimir: 'preguntar', cajonAuto: true, ancho: 42, baud: 9600 },
+        ticket: { imprimir: 'siempre', cajonAuto: true, ancho: 42, baud: 9600 },
         balanza: { prefijo: '20', modo: 'peso', baud: 9600, comando: 'P' },
         stock: { permitirSinStock: true, diasVencimiento: 7 },
         arca: { habilitado: false },

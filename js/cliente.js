@@ -1,6 +1,6 @@
 /* App de clientes: catálogo, carrito, consulta de precios con la cámara y pedido por WhatsApp */
 const C = (() => {
-  const EMO = { Bebidas: '🥤', Cigarrillos: '🚬', Golosinas: '🍬', Galletitas: '🍪', Snacks: '🍟', Almacén: '🛒', Lácteos: '🥛', Fiambres: '🧀', Panadería: '🥖', Helados: '🍦', Limpieza: '🧴', Perfumería: '🧼', Librería: '✏️', Varios: '📦' };
+  const EMO = Catalogo.EMO;
   const ls = {
     get(k, d) { try { return JSON.parse(localStorage.getItem('cliente:' + k)) ?? d; } catch { return d; } },
     set(k, v) { try { localStorage.setItem('cliente:' + k, JSON.stringify(v)); } catch { /* sin espacio */ } },
@@ -12,29 +12,7 @@ const C = (() => {
   const view = $('#c-view');
   const byCode = c => cat.productos.find(p => p.c === c);
 
-  /* Si el dueño abre la app en el mismo dispositivo del panel, usa los datos en vivo */
-  async function desdePanel() {
-    try {
-      const g = await KV.get('global');
-      if (!g) return null;
-      const dev = JSON.parse(localStorage.getItem('kiosco:device') || 'null');
-      const d = await KV.get('data:' + ((dev && dev.sucursal) || g.sucursales[0].id));
-      if (!d) return null;
-      const n = g.config.negocio;
-      const prods = d.productos.filter(p => p.publicar !== false && p.activo !== false && +p.precios[0] > 0).map(p => ({
-        c: p.codigo, n: p.nombre, r: p.rubro, m: p.marca, p: +p.precios[0], e: p.emoji || EMO[p.rubro] || '📦', i: p.imagen || '', k: p.porPeso ? 1 : 0, s: p.stock > 0 ? 1 : 0, d: p.favorito ? 1 : 0,
-      }));
-      return { local: true, negocio: n, rubros: g.config.rubros.filter(r => prods.some(p => p.r === r)), productos: prods };
-    } catch { return null; }
-  }
-
-  async function cargar() {
-    const local = await desdePanel();
-    if (local) return local;
-    const r = await fetch('data/catalogo.json', { cache: 'no-cache' });
-    if (!r.ok) throw new Error('catálogo no disponible');
-    return r.json();
-  }
+  const cargar = () => Catalogo.cargar();
 
   function cartCount() { return Object.keys(cart).length; }
   function cartTotal() { return sum(Object.entries(cart), ([c, n]) => (byCode(c)?.p || 0) * n); }

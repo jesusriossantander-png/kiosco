@@ -1,9 +1,14 @@
-# Maxikiosco: panel de gestión + app para clientes
+# Maxikiosco: landing + panel de gestión + app para clientes (demo)
 
-Aplicación web hecha en HTML, CSS y JavaScript puro, sin servidor. Funciona en PC y en el celular, se puede instalar como app y sigue funcionando sin internet.
+Demo hecha en HTML, CSS y JavaScript puro, **sin backend**: todo corre en el navegador para poder usarla y mostrarla. Funciona en PC y en el celular, se puede instalar como app y sigue funcionando sin internet.
 
-- **`index.html`**: panel del negocio (dueño, encargados, cajeros, repositores).
+- **`index.html`**: landing page del kiosco, con ofertas, servicios, contacto y acceso a la app.
+- **`panel.html`**: panel del negocio (dueño, encargados, cajeros, repositores).
 - **`cliente.html`**: app para los clientes: catálogo, carrito, consulta de precios con la cámara y pedido por WhatsApp.
+
+Las ofertas de la landing se editan en la lista `OFERTAS` de `js/landing.js`.
+El ticket de venta se muestra **simulado en pantalla**, tal como saldría en la impresora térmica de 80 mm. Desde ahí se puede imprimir de verdad.
+Las listas de opciones se abren en **ventanas flotantes**, en lugar de desplegables.
 
 ## Publicar en GitHub Pages
 
@@ -11,7 +16,8 @@ Aplicación web hecha en HTML, CSS y JavaScript puro, sin servidor. Funciona en 
 2. En **Build and deployment → Source** elegí **Deploy from a branch**.
 3. Elegí la rama donde está la app y la carpeta **/ (root)** → **Save**.
 4. En 1 o 2 minutos queda en línea:
-   - Panel: `https://jesusriossantander-png.github.io/kiosco/`
+   - Landing: `https://jesusriossantander-png.github.io/kiosco/`
+   - Panel: `https://jesusriossantander-png.github.io/kiosco/panel.html`
    - Clientes: `https://jesusriossantander-png.github.io/kiosco/cliente.html`
 
 GitHub Pages usa HTTPS, que es lo que necesita la cámara del celular para escanear.
@@ -99,7 +105,8 @@ El pedido llega a tu WhatsApp (configuralo en **Configuración → Negocio**). C
 ## Estructura
 
 ```
-index.html, cliente.html      páginas
+index.html                    landing page
+panel.html, cliente.html      panel y app de clientes
 css/app.css, css/cliente.css  estilos (modo claro y oscuro)
 js/kv.js, db.js               almacenamiento local
 js/ui.js                      utilidades de interfaz, Excel
@@ -107,7 +114,9 @@ js/scanner.js                 lector con cámara
 js/hardware.js                impresora, cajón, balanza, tickets
 js/app.js                     sesión, permisos y navegación
 js/modules/*.js               cada sección del panel
+js/catalogo.js                catálogo compartido (landing y clientes)
 js/cliente.js                 app de clientes
+js/landing.js, css/landing.css landing page
 sw.js, manifest*.json         modo offline e instalación
 data/catalogo.json            catálogo publicado para clientes
 ```

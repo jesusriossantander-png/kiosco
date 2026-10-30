@@ -340,3 +340,46 @@ h3 { font-size: 15px; }
   #net { font-size: 0; padding: 5px; }
   #net::before { content: ''; }
 }
+
+/* ---------- Ventanas flotantes en lugar de desplegables ---------- */
+.pick-native { position: absolute !important; opacity: 0 !important; pointer-events: none !important; width: 1px !important; height: 1px !important; min-height: 0 !important; padding: 0 !important; border: 0 !important; }
+.pick-btn {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 40px; padding: 8px 11px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface); cursor: pointer; text-align: left;
+}
+.pick-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pick-btn i { font-style: normal; color: var(--muted); }
+.pick-btn:hover { border-color: var(--primary); }
+.pick-btn:disabled { opacity: .55; cursor: not-allowed; }
+.pick-btn.lg { min-height: 48px; font-size: 17px; }
+.toolbar .pick-btn[style*="auto"] { width: auto !important; min-width: 150px; }
+.modal.pick { max-width: 420px; }
+.pick-list { display: grid; gap: 6px; }
+.pick-opt { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); cursor: pointer; text-align: left; font-size: 15px; }
+.pick-opt:hover, .pick-opt:focus { border-color: var(--primary); outline: none; }
+.pick-opt.on { background: var(--primary-soft); border-color: var(--primary); font-weight: 600; }
+.pick-opt b { color: var(--primary); }
+
+/* ---------- Ticket simulado (papel térmico 80 mm) ---------- */
+.modal.ticket { max-width: 400px; }
+.modal.ticket .modal-body { background: var(--surface-2); }
+.tk-paper {
+  --paper: #fffdf6;
+  background: var(--paper); color: #161616; width: 302px; max-width: 100%; margin: 6px auto 14px; padding: 20px 16px 22px;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace; font-size: 12.5px; line-height: 1.45;
+  position: relative; box-shadow: 0 8px 22px rgba(0,0,0,.18);
+  -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 51% repeat-x,
+                conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 12px 51% repeat-x;
+          mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / 12px 51% repeat-x,
+                conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / 12px 51% repeat-x;
+}
+.tk-paper .lr { display: flex; justify-content: space-between; gap: 10px; }
+.tk-paper .lr span:last-child { white-space: nowrap; }
+.tk-paper .lr.big { font-size: 16px; font-weight: 800; margin: 4px 0; }
+.tk-paper .c { text-align: center; }
+.tk-paper .c.b { font-weight: 800; font-size: 14.5px; letter-spacing: .5px; }
+.tk-paper hr { border: 0; border-top: 1px dashed #777; margin: 7px 0; }
+.tk-bars { display: flex; justify-content: center; margin-top: 12px; }
+.tk-bars > div { position: relative; height: 44px; }
+.tk-bars i { position: absolute; top: 0; bottom: 0; background: #161616; }
+.tk-cod { font-size: 11px; letter-spacing: 3px; margin-top: 2px; }

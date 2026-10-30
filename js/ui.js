@@ -246,3 +246,90 @@ const Excel = {
     return XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
   },
 };
+
+/* Ventanas flotantes en lugar de desplegables: cada <select> y cada campo con lista de sugerencias
+   se reemplaza visualmente por un botón que abre una ventana con las opciones. El <select> original
+   queda oculto, así el resto del código sigue leyendo .value y escuchando "change". */
+const Pick = {
+  open({ title = 'Elegí una opción', options, value, onPick }) {
+    const body = h(`<div>${options.length > 7 ? '<input class="input lg mb" data-pq placeholder="Buscar…" autocomplete="off">' : ''}<div class="pick-list"></div></div>`);
+    let m;
+    const draw = (q = '') => {
+      const w = norm(q);
+      const list = options.filter(o => !w || norm(o.label).includes(w));
+      $('.pick-list', body).innerHTML = list.length
+        ? list.map(o => `<button type="button" class="pick-opt ${String(o.value) === String(value) ? 'on' : ''}" data-v="${esc(o.value)}" ${o.disabled ? 'disabled' : ''}><span>${esc(o.label)}</span>${String(o.value) === String(value) ? '<b>✓</b>' : ''}</button>`).join('')
+        : UI.empty('Sin resultados');
+      $$('.pick-opt', body).forEach(b => { b.onclick = () => { m.close(); onPick(b.dataset.v); }; });
+    };
+    m = UI.modal({ title, body, size: 'pick' });
+    const q = $('[data-pq]', body);
+    if (q) q.addEventListener('input', () => draw(q.value));
+    draw();
+    setTimeout(() => { const on = $('.pick-opt.on', body); if (on) on.scrollIntoView({ block: 'center' }); if (!q && !isTouch && on) on.focus(); });
+  },
+
+  titulo(el) {
+    const lab = el.closest('label');
+    const t = (lab && $('span', lab)) || (el.previousElementSibling && el.previousElementSibling.classList.contains('lbl') ? el.previousElementSibling : null);
+    return (t && t.textContent.trim()) || el.getAttribute('aria-label') || el.getAttribute('placeholder') || (el.options && el.options[0] && /^(todos|todas)/i.test(el.options[0].text) ? 'Filtrar' : 'Elegí una opción');
+  },
+
+  select(sel) {
+    if (sel.dataset.pick) return;
+    sel.dataset.pick = '1';
+    const proto = Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype, 'value');
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pick-btn' + (sel.classList.contains('lg') ? ' lg' : '');
+    if (sel.style.width) btn.style.width = sel.style.width;
+    if (sel.id) btn.dataset.for = sel.id;
+    sel.classList.add('pick-native');
+    sel.tabIndex = -1;
+    sel.after(btn);
+    const label = () => {
+      const o = sel.options[sel.selectedIndex];
+      btn.innerHTML = `<span>${esc(o ? o.text : '—')}</span><i aria-hidden="true">▾</i>`;
+      btn.disabled = sel.disabled;
+    };
+    Object.defineProperty(sel, 'value', { configurable: true, get() { return proto.get.call(sel); }, set(v) { proto.set.call(sel, v); label(); } });
+    sel.addEventListener('change', label);
+    btn.onclick = () => Pick.open({
+      title: Pick.titulo(sel),
+      options: [...sel.options].map(o => ({ value: o.value, label: o.text, disabled: o.disabled })),
+      value: sel.value,
+      onPick: v => { proto.set.call(sel, v); label(); sel.dispatchEvent(new Event('input', { bubbles: true })); sel.dispatchEvent(new Event('change', { bubbles: true })); },
+    });
+    label();
+  },
+
+  /* Campos de texto con sugerencias (datalist): se pueden escribir o elegir de la ventana */
+  lista(inp) {
+    if (inp.dataset.pick) return;
+    inp.dataset.pick = '1';
+    const id = inp.getAttribute('list');
+    inp.removeAttribute('list');
+    const wrap = document.createElement('div');
+    wrap.className = 'field-inline';
+    inp.replaceWith(wrap);
+    wrap.append(inp);
+    const btn = h('<button type="button" class="btn" aria-label="Ver opciones">☰</button>');
+    wrap.append(btn);
+    btn.onclick = () => {
+      const dl = document.getElementById(id);
+      const options = dl ? [...dl.options].map(o => ({ value: o.value, label: o.value })) : [];
+      if (!options.length) return UI.toast('No hay opciones cargadas todavía', 'info');
+      Pick.open({ title: Pick.titulo(inp), options, value: inp.value, onPick: v => { inp.value = v; inp.dispatchEvent(new Event('input', { bubbles: true })); inp.dispatchEvent(new Event('change', { bubbles: true })); } });
+    };
+  },
+
+  scan(root) {
+    if (root.nodeType !== 1) return;
+    if (root.matches('select')) Pick.select(root);
+    else if (root.matches('input[list]')) Pick.lista(root);
+    $$('select', root).forEach(s => Pick.select(s));
+    $$('input[list]', root).forEach(i => Pick.lista(i));
+  },
+};
+new MutationObserver(muts => muts.forEach(m => m.addedNodes.forEach(n => Pick.scan(n)))).observe(document.documentElement, { childList: true, subtree: true });
+document.addEventListener('DOMContentLoaded', () => Pick.scan(document.body));

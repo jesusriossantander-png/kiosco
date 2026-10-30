@@ -180,7 +180,7 @@ const POS = (() => {
       <div class="medios">${medios.map(m => `<button class="medio" data-m="${m.id}" type="button"><span>${m.icon}</span>${esc(m.nombre)}</button>`).join('')}</div>
       <div id="co-pagos" class="pagos-list"></div>
       <div id="co-det"></div>
-      <label class="check"><input type="checkbox" id="co-print" ${cfg.ticket.imprimir === 'siempre' ? 'checked' : ''} ${cfg.ticket.imprimir === 'nunca' ? 'disabled' : ''}> Imprimir ticket</label>
+      <label class="check"><input type="checkbox" id="co-print" ${cfg.ticket.imprimir === 'siempre' ? 'checked' : ''} ${cfg.ticket.imprimir === 'nunca' ? 'disabled' : ''}> Mostrar / imprimir ticket</label>
     </div>`);
     const resto = () => round2(total - sum(pagos, p => p.monto));
     const draw = () => {

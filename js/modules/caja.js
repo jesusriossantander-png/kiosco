@@ -134,7 +134,7 @@ const Caja = {
     Object.keys(t.declarado).forEach(m => { rows.push(medioNombre(m), ['  Sistema / Declarado', `${fmt(t.esperado[m])} / ${fmt(t.declarado[m])}`], ['  Diferencia', fmt(t.diferencias[m])]); });
     rows.push('-', ['DIFERENCIA TOTAL', fmt(t.diferencia)]);
     if (t.retiroCierre) rows.push(['Retirado al cierre', fmt(t.retiroCierre)]);
-    Ticket.imprimir(rows);
+    Ticket.imprimir(rows, { titulo: `Cierre de caja · ${t.caja}` });
   },
 };
 
