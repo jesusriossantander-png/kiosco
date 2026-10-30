@@ -87,6 +87,7 @@ App.register('precios', {
       cambios.forEach(({ p, nuevo }) => { p.costo = nuevo.costo; p.precios = nuevo.precios; });
       const dest = f.destino === 'todas' ? 'todas las listas' : f.destino === 'costo' ? 'costo' : L[+f.destino];
       const modo = { pct: `${f.valor}%`, fijo: `${fmt(f.valor)}`, margen: `margen ${f.valor}%`, costoAct: `costo +${f.valor}% manteniendo margen` }[f.modo];
+      DB.log('precios', 'Actualización masiva de precios', `${cambios.length} productos · ${modo} en ${dest}`);
       DB.d.preciosLog.push({ fecha: Date.now(), n: cambios.length, usuario: App.user.nombre, desc: `${modo} en ${dest}${f.rubro ? ' · ' + f.rubro : ''}${f.marca ? ' · ' + f.marca : ''}` });
       DB.save();
       UI.toast(`Precios actualizados en ${cambios.length} productos`, 'ok');

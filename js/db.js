@@ -68,7 +68,7 @@ const DB = (() => {
   function defaultData() {
     return {
       productos: [], ventas: [], clientes: [], proveedores: [], compras: [], ordenes: [], movimientos: [],
-      turnos: [], recargas: [], devoluciones: [], pedidos: [], preciosLog: [], conteos: [],
+      turnos: [], recargas: [], devoluciones: [], pedidos: [], preciosLog: [], conteos: [], historial: [],
       seq: { venta: 1, orden: 1, compra: 1, devolucion: 1, pedido: 1, interno: 1 },
     };
   }
@@ -226,9 +226,19 @@ const DB = (() => {
     }
     D.movimientos.push({
       id: uid(), fecha: Date.now(), pid: p.id, codigo: p.codigo, nombre: p.nombre, rubro: p.rubro, tipo, cant, motivo,
-      costo: p.costo || 0, usuario: (window.App && App.user && App.user.nombre) || '', deposito: !!extra.deposito,
+      costo: p.costo || 0, usuario: (typeof App !== 'undefined' && App.user && App.user.nombre) || '', deposito: !!extra.deposito,
       stock: extra.deposito ? p.stockDeposito : p.stock, ref: extra.ref || '',
     });
+    if (['entrada', 'salida', 'ajuste'].includes(tipo) || (tipo === 'transferencia' && cant > 0)) log('stock', { entrada: 'Entrada de mercadería', salida: 'Salida de mercadería', ajuste: 'Ajuste de stock', transferencia: 'Transferencia' }[tipo], `${p.nombre}: ${cant > 0 ? '+' : ''}${fmtN(cant, 3)}${motivo ? ' · ' + motivo : ''}${extra.deposito ? ' (depósito)' : ''}`);
+    save();
+  }
+
+  /* Historial de todo lo que pasa en el panel (quién, cuándo y qué) */
+  function log(modulo, accion, detalle = '', monto = null) {
+    if (!D) return;
+    const u = typeof App !== 'undefined' && App.user;
+    (D.historial ||= []).push({ id: uid(), fecha: Date.now(), usuario: u ? u.nombre : 'Sistema', rol: u ? u.rol : '', caja: device.caja, modulo, accion, detalle, monto });
+    if (D.historial.length > 8000) D.historial.splice(0, D.historial.length - 8000);
     save();
   }
 
@@ -279,7 +289,7 @@ const DB = (() => {
   }
 
   return {
-    uid, RUBROS, EMOJI, init, useSucursal, save, flush, next, prod, cliente, proveedor, porCodigo, precio, precioLista, ofertaActiva, emoji, img3d, foto, mov,
+    uid, RUBROS, EMOJI, init, useSucursal, save, flush, next, prod, cliente, proveedor, porCodigo, precio, precioLista, ofertaActiva, emoji, img3d, foto, mov, log,
     snapshot, restore, autoBackup, backups, resetTodo, crearSucursal,
     get g() { return G; }, get d() { return D; }, get device() { return device; },
     get sucursal() { return G.sucursales.find(s => s.id === device.sucursal) || G.sucursales[0]; },

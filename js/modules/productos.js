@@ -101,6 +101,7 @@ const Productos = (() => {
       label: 'Eliminar', class: 'danger', onClick: async () => {
         if (!(await UI.confirm(`¿Eliminar "${p.nombre}"? Si tiene ventas, se recomienda desactivarlo.`, { danger: true, ok: 'Eliminar' }))) return false;
         DB.d.productos = DB.d.productos.filter(x => x.id !== p.id);
+        DB.log('productos', 'Producto eliminado', `${p.nombre} (${p.codigo})`);
         DB.save(); App.refresh();
       },
     });
@@ -126,6 +127,7 @@ const Productos = (() => {
           if (f.stock) DB.mov(p, f.stock, 'alta', 'Stock inicial', { venc: f.venc || '' });
           if (f.stockDeposito) DB.mov(p, f.stockDeposito, 'alta', 'Stock inicial depósito', { deposito: true });
         }
+        DB.log('productos', nuevo ? 'Producto creado' : 'Producto modificado', `${p.nombre} · ${fmt(DB.precioLista(p))}${p.oferta ? ' · oferta ' + fmt(p.oferta.precio) : ''}`);
         DB.save();
         UI.toast('Producto guardado', 'ok');
         if (after) after(p); else if (App.current && App.current.id === 'productos') App.refresh();
@@ -296,6 +298,7 @@ const Productos = (() => {
             esNuevo ? n++ : u++;
           });
           DB.save();
+          DB.log('productos', 'Importación desde Excel', `${n} nuevos · ${u} actualizados`);
           UI.toast(`Importación lista: ${n} nuevos, ${u} actualizados`, 'ok', 5000);
           App.refresh();
         },

@@ -19,6 +19,7 @@ const Clientes = (() => {
           if (!nuevo && f.limite !== c.limite && !(await UI.autorizar('Cambiar límite de crédito'))) return false;
           Object.assign(c, { nombre: f.nombre, dni: f.dni, tel: f.tel, direccion: f.direccion, limite: f.limite, lista: +f.lista, notas: f.notas });
           if (nuevo) { c.id = DB.uid(); DB.d.clientes.push(c); }
+          DB.log('clientes', nuevo ? 'Cliente creado' : 'Cliente modificado', `${c.nombre}${c.limite ? ' · límite ' + fmt(c.limite) : ''}`);
           DB.save();
           UI.toast('Cliente guardado', 'ok');
           if (after) after(c); else if (App.current?.id === 'clientes') App.refresh();
@@ -49,6 +50,7 @@ const Clientes = (() => {
           c.saldo = round2(c.saldo - f.monto);
           c.movs.push({ id: DB.uid(), fecha: Date.now(), tipo: 'pago', monto: f.monto, medio: f.medio, nota: f.nota, usuario: App.user.nombre });
           const enCaja = Caja.registrar('cobro', f.medio, f.monto, `Cobro cta. cte. ${c.nombre}`);
+          DB.log('clientes', 'Pago de fiado', `${c.nombre} · ${medioNombre(f.medio)} · saldo ${fmt(c.saldo)}`, f.monto);
           DB.save();
           UI.toast(`Pago registrado. Saldo: ${fmt(c.saldo)}${enCaja ? '' : ' (caja cerrada: no se sumó al turno)'}`, enCaja ? 'ok' : 'warn', 5000);
           if (f.imprimir) {
@@ -89,6 +91,7 @@ const Clientes = (() => {
             const nota = (await UI.prompt('Detalle', { label: 'Concepto', value: 'Saldo libreta' })) || 'Cargo manual';
             c.saldo = round2(c.saldo + num(m));
             c.movs.push({ id: DB.uid(), fecha: Date.now(), tipo: 'cargo', monto: round2(num(m)), nota, usuario: App.user.nombre });
+            DB.log('clientes', 'Cargo manual en cuenta', `${c.nombre} · ${nota}`, round2(num(m)));
             DB.save(); draw();
           }
         };

@@ -103,6 +103,7 @@ const Pedidos = (() => {
       if (!d) return UI.toast('No se encontró un código de pedido en el texto', 'error');
       const p = preparar(d);
       DB.d.pedidos.push(p);
+      DB.log('pedidos', 'Pedido online cargado', `#${p.nro} · ${p.nombre} · ${p.items.length} productos`, p.total);
       DB.save();
       App.refresh();
       setTimeout(() => ver(p));
@@ -140,6 +141,7 @@ App.register('recargas', {
       if (!Caja.actual()) return Caja.abrirModal(() => App.refresh());
       const r = { id: DB.uid(), fecha: Date.now(), ...d, comision: round2(d.monto * cfg.comision / 100), usuario: App.user.nombre, turnoId: Caja.actual().id };
       DB.d.recargas.push(r);
+      DB.log('recargas', 'Recarga / pago de servicio', `${d.tipo} · ${d.empresa} ${d.numero}`, d.monto);
       Caja.registrar('recarga', d.medio, d.monto, `${d.tipo} ${d.empresa} ${d.numero}`);
       if (!cfg.empresas.includes(d.empresa)) cfg.empresas.push(d.empresa);
       DB.save();
@@ -206,6 +208,7 @@ const Devoluciones = (() => {
             cli.movs.push({ id: DB.uid(), fecha: Date.now(), tipo: 'pago', monto: total, medio: 'devolucion', nota: `Devolución #${d.nro}`, usuario: App.user.nombre });
           }
           DB.d.devoluciones.push(d);
+          DB.log('devoluciones', 'Devolución aprobada', `#${d.nro} · ticket #${v.nro} · aprobó ${d.aprobadoPor} · ${d.reintegro}`, total);
           DB.save();
           const r = Ticket.cabecera(`DEVOLUCION #${d.nro}`);
           r.push(['Ticket original', '#' + v.nro], ['Fecha', fechaHora(d.fecha)], ['Aprobó', d.aprobadoPor], '-');

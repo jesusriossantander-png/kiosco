@@ -285,6 +285,7 @@ const POS = (() => {
     }
     if (cart.pedidoId) { const pd = DB.d.pedidos.find(x => x.id === cart.pedidoId); if (pd) { pd.estado = 'entregado'; pd.ventaId = v.id; } }
     DB.d.ventas.push(v);
+    DB.log('ventas', 'Venta', `Ticket #${v.nro} · ${v.items.length} artículos · ${pagos.map(p => medioNombre(p.medio)).join(' + ')}${v.cliente ? ' · ' + v.cliente : ''}`, v.total);
     DB.save();
     if (pagos.some(p => p.medio === 'efectivo') && DB.g.config.ticket.cajonAuto && HW.pWriter) HW.abrirCajon();
     if (imprimir) Ticket.venta(v);

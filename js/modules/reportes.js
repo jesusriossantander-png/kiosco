@@ -49,6 +49,7 @@ const Reportes = (() => {
     if (DB.d.devoluciones.some(d => d.ventaId === v.id)) { UI.toast('La venta tiene devoluciones: no se puede anular', 'warn'); return false; }
     if (!(await UI.confirm(`¿Anular el ticket #${v.nro}? Se devuelve el stock y se revierte el fiado.`, { danger: true, ok: 'Anular' }))) return false;
     v.anulada = true;
+    DB.log('ventas', 'Venta anulada', `Ticket #${v.nro}`, v.total);
     v.anuladaPor = App.user.nombre;
     v.items.forEach(i => { const p = i.pid && DB.prod(i.pid); if (p) DB.mov(p, i.cant, 'devolucion', `Anulación ticket #${v.nro}`); });
     const fiado = sum(v.pagos.filter(p => p.medio === 'fiado'), p => p.monto);

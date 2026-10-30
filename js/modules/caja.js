@@ -42,6 +42,7 @@ const Caja = {
           if (f.caja && f.caja !== DB.device.caja) { DB.device.caja = f.caja; }
           if (this.actual()) { UI.toast('Esta caja ya está abierta', 'warn'); return; }
           DB.d.turnos.push({ id: DB.uid(), caja: DB.device.caja, usuarioId: App.user.id, usuario: App.user.nombre, apertura: Date.now(), inicial: round2(f.inicial), movs: [] });
+          DB.log('caja', 'Apertura de caja', `${DB.device.caja} · efectivo inicial`, round2(f.inicial));
           DB.save();
           UI.toast('Caja abierta', 'ok');
           App.chrome();
@@ -63,6 +64,7 @@ const Caja = {
           if (f.monto <= 0) { UI.toast('Ingresá un monto', 'warn'); return false; }
           if (tipo === 'retiro' && !(await UI.autorizar('Retiro de caja'))) return false;
           this.registrar(tipo, 'efectivo', f.monto, f.motivo || (tipo === 'ingreso' ? 'Ingreso' : 'Retiro'));
+          DB.log('caja', tipo === 'ingreso' ? 'Ingreso de dinero' : 'Retiro de dinero', f.motivo || '', f.monto);
           HW.abrirCajon();
           UI.toast('Movimiento registrado', 'ok');
           App.refresh();
@@ -103,6 +105,7 @@ const Caja = {
             diferencia: round2(Object.values(dif).reduce((a, b) => a + b, 0)), totalVentas: tot.totalVentas, nVentas: tot.nVentas,
             pm: tot.pm, retiroCierre: round2(f.retiroCierre), obs: f.obs,
           });
+          DB.log('caja', 'Cierre de caja (arqueo)', `${t.caja} · ${tot.nVentas} ventas · diferencia ${fmt(t.diferencia)}`, tot.totalVentas);
           DB.save();
           DB.autoBackup(true);
           App.chrome();

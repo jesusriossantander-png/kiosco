@@ -19,6 +19,7 @@ const Proveedores = (() => {
           if (!f.nombre) { UI.toast('Falta el nombre', 'warn'); return false; }
           Object.assign(p, f);
           if (nuevo) { p.id = DB.uid(); DB.d.proveedores.push(p); }
+          DB.log('compras', nuevo ? 'Proveedor creado' : 'Proveedor modificado', p.nombre);
           DB.save(); App.refresh();
         },
       }],
@@ -71,7 +72,7 @@ const Proveedores = (() => {
     const guardar = root => {
       const f = UI.formData(root);
       Object.assign(o, { proveedorId: f.prov, notas: f.notas, items });
-      if (nueva) { o.id = DB.uid(); o.nro = DB.next('orden'); o.fecha = Date.now(); o.usuario = App.user.nombre; DB.d.ordenes.push(o); }
+      if (nueva) { o.id = DB.uid(); o.nro = DB.next('orden'); o.fecha = Date.now(); o.usuario = App.user.nombre; DB.d.ordenes.push(o); DB.log('compras', 'Orden de pedido creada', `#${o.nro} · ${DB.proveedor(o.proveedorId)?.nombre || 'sin proveedor'} · ${items.length} ítems`); }
       DB.save();
     };
     UI.modal({
@@ -120,6 +121,7 @@ const Proveedores = (() => {
             DB.mov(p, i.cant, 'compra', `Compra #${comp.nro}${f.comprobante ? ' · ' + f.comprobante : ''}`, { deposito: dep, venc: dep ? '' : i.venc });
           });
           DB.d.compras.push(comp);
+          DB.log('compras', 'Compra / remito registrado', `#${comp.nro} · ${DB.proveedor(comp.proveedorId)?.nombre || 'sin proveedor'} · ${comp.items.length} ítems${comp.comprobante ? ' · ' + comp.comprobante : ''}`, comp.total);
           if (desdeOrden) desdeOrden.estado = 'recibida';
           DB.save();
           UI.toast(`Compra registrada: ${fmt(comp.total)}`, 'ok');

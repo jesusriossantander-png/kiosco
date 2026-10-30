@@ -168,6 +168,7 @@ const Stock = (() => {
       if (!(await UI.confirm(`Se ajustarán ${ids.length} productos al valor contado. ¿Continuar?`))) return;
       let valor = 0;
       ids.forEach(id => { const p = DB.prod(id); const d = round3(conteo.items[id] - p.stock); if (d) { DB.mov(p, d, 'conteo', d < 0 ? 'Faltante en conteo' : 'Sobrante en conteo'); valor += d * (p.costo || 0); } });
+      DB.log('stock', 'Conteo cíclico aplicado', `${conteo.rubro || 'Todos'} · ${ids.length} productos · diferencia ${fmt(valor)}`);
       DB.d.conteos.push({ id: DB.uid(), fecha: Date.now(), rubro: conteo.rubro, items: ids.length, valor: round2(valor), usuario: App.user.nombre });
       DB.save();
       conteo = null;

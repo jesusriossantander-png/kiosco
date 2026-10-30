@@ -33,6 +33,7 @@ App.register('usuarios', {
             if (!admins && (f.rol !== 'admin' || !f.activo)) { UI.toast('Debe quedar al menos un administrador activo', 'warn'); return false; }
             Object.assign(u, f);
             if (nuevo) { u.id = DB.uid(); DB.g.usuarios.push(u); }
+            DB.log('usuarios', nuevo ? 'Usuario creado' : 'Usuario modificado', `${u.nombre} · ${R[u.rol]?.nombre || u.rol}${u.activo ? '' : ' · inactivo'}`);
             DB.save();
             if (u.id === App.user.id) App.user = u;
             App.chrome(); App.refresh();
@@ -57,7 +58,7 @@ App.register('config', {
     v.innerHTML = UI.tabs(tabs, this.tab) + '<div id="cf-body"></div>';
     $$('[data-tab]', v).forEach(b => { b.onclick = () => { this.tab = b.dataset.tab; App.refresh(); }; });
     const body = $('#cf-body', v);
-    const guardar = (root, fn) => { fn(UI.formData(root)); DB.save(); UI.toast('Configuración guardada', 'ok'); App.chrome(); };
+    const guardar = (root, fn) => { fn(UI.formData(root)); DB.log('config', 'Configuración modificada', tabs.find(t => t.id === this.tab)?.label.replace(/^\S+\s/, '') || ''); DB.save(); UI.toast('Configuración guardada', 'ok'); App.chrome(); };
     const n = cfg.negocio;
 
     if (this.tab === 'negocio') {
@@ -69,12 +70,10 @@ App.register('config', {
         <label><span>Mensaje al pie del ticket</span><input name="mensajeTicket" value="${esc(n.mensajeTicket)}"></label>
         <h3 class="mt">Soporte técnico</h3><p class="muted small">Datos de contacto de quien te da soporte (aparecen en Soporte y ayuda).</p>
         <div class="grid3"><label><span>WhatsApp soporte</span><input name="sw" value="${esc(cfg.soporte.whatsapp)}" inputmode="tel"></label><label><span>Teléfono soporte</span><input name="st" value="${esc(cfg.soporte.telefono)}"></label><label><span>Email soporte</span><input name="se" value="${esc(cfg.soporte.email)}"></label></div>
-        <label><span>Apariencia</span><select name="tema">${opts([['auto', 'Automática (según el dispositivo)'], ['light', 'Clara'], ['dark', 'Oscura']], cfg.tema, x => x[0], x => x[1])}</select></label>
         <button class="btn primary" id="cf-save">Guardar</button></div>`;
       $('#cf-save', body).onclick = () => guardar(body, f => {
         Object.assign(n, { nombre: f.nombre, cuit: f.cuit, direccion: f.direccion, telefono: f.telefono, whatsapp: f.whatsapp, horario: f.horario, alias: f.alias, mpLink: f.mpLink, mensajeTicket: f.mensajeTicket });
         Object.assign(cfg.soporte, { whatsapp: f.sw, telefono: f.st, email: f.se });
-        cfg.tema = f.tema; App.tema();
       });
     }
 
@@ -179,7 +178,7 @@ App.register('config', {
         const f = e.target.files[0];
         if (!f) return;
         if (!(await UI.confirm('Restaurar reemplaza los datos actuales de este dispositivo por los del archivo. ¿Continuar?', { danger: true, ok: 'Restaurar' }))) return;
-        try { await DB.restore(JSON.parse(await f.text())); UI.toast('Backup restaurado', 'ok'); App.chrome(); App.refresh(); }
+        try { await DB.restore(JSON.parse(await f.text())); DB.log('config', 'Backup restaurado', f.name); UI.toast('Backup restaurado', 'ok'); App.chrome(); App.refresh(); }
         catch (err) { UI.toast(err.message, 'error', 6000); }
       };
       $('#cf-reset', body).onclick = async () => {
@@ -225,7 +224,7 @@ App.register('config', {
         $$('[data-delb]', body).forEach(b => { b.onclick = () => { leer(); ap.banners.splice(+b.dataset.delb, 1); draw(); }; });
         $$('[data-delp]', body).forEach(b => { b.onclick = () => { leer(); ap.promosPago.splice(+b.dataset.delp, 1); draw(); }; });
         $$('[data-up]', body).forEach(b => { b.onclick = () => { leer(); const i = +b.dataset.up; [ap.banners[i - 1], ap.banners[i]] = [ap.banners[i], ap.banners[i - 1]]; draw(); }; });
-        $('#ap-save', body).onclick = () => { leer(); DB.save(); UI.toast('App de clientes actualizada', 'ok'); };
+        $('#ap-save', body).onclick = () => { leer(); DB.log('config', 'App de clientes y banners modificados', `${ap.banners.length} banners · ${ap.promosPago.length} promos`); DB.save(); UI.toast('App de clientes actualizada', 'ok'); };
       };
       draw();
     }

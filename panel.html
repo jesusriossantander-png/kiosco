@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" data-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Panel Maxikiosco</title>
   <meta name="description" content="Panel de gestión del maxikiosco: ventas, caja, stock, precios, clientes y reportes.">
-  <meta name="theme-color" content="#0f766e">
+  <meta name="theme-color" content="#ffffff">
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="img/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="img/icon-192.png">
@@ -37,7 +37,7 @@
 
   <div id="app" class="layout hidden">
     <aside class="sidebar" id="sidebar">
-      <div class="brand"><img src="img/icon.svg" alt=""><div><b id="brand-name">Mi Maxikiosco</b><small id="brand-suc"></small></div></div>
+      <div class="brand"><span class="brand-logo"><img src="img/icon.svg" alt=""></span><div><b id="brand-name">Mi Maxikiosco</b><small id="brand-suc"></small></div></div>
       <nav class="nav" id="nav" aria-label="Secciones"></nav>
       <div class="side-foot"><div id="side-user"></div><button class="btn sm block" id="btn-logout">Cerrar sesión</button></div>
     </aside>
@@ -46,6 +46,7 @@
       <header class="topbar">
         <button class="icon-btn menu-btn" id="menu-btn" aria-label="Abrir menú">☰</button>
         <h1 id="title"></h1>
+        <div class="clock" id="clock"><b id="clk-h">--:--:--</b><small id="clk-d"></small></div>
         <span id="net" class="pill"></span>
         <span id="caja-pill" class="pill"></span>
       </header>
@@ -76,6 +77,7 @@
   <script src="js/modules/proveedores.js"></script>
   <script src="js/modules/reportes.js"></script>
   <script src="js/modules/varios.js"></script>
+  <script src="js/modules/historial.js"></script>
   <script src="js/modules/admin.js"></script>
   <script>App.init();</script>
 </body>
