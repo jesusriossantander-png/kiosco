@@ -281,3 +281,230 @@ body.tienda { background: var(--soft); color: var(--ink); font-family: Inter, sy
   .t-tile.wide .art { position: static; margin-top: auto; }
   .t-tile.wide .art img { width: 62px; }
 }
+
+/* ===== Celular: medidas tomadas de la app de referencia (pantalla de ~390 px) ===== */
+@media (max-width: 759px) {
+  body.tienda { font-size: 14px; }
+  .t-head-in { padding: 8px 14px; gap: 10px; }
+  .t-logo { width: 38px; height: 38px; }
+  .t-logo img { width: 24px; height: 24px; }
+  .t-store small { font-size: 11.5px; }
+  .t-store b { font-size: 14px; }
+  .t-store b .ic { width: 18px; height: 18px; }
+  .t-round { width: 38px; height: 38px; }
+  .t-round .ic { width: 20px; height: 20px; }
+  .t-round .n { min-width: 17px; height: 17px; font-size: 10.5px; }
+  .t-search { height: 42px; padding: 0 14px; gap: 8px; }
+  .t-search .ic { width: 20px; height: 20px; }
+  .t-search input { font-size: 15px; }
+  .t-bar { padding: 0 14px 10px; }
+  .t-strip { font-size: 12.5px; padding: 8px 12px; }
+  .t-main { padding-top: 12px; padding-bottom: 96px; }
+  .t-track { padding: 0 14px; gap: 10px; }
+  .t-slide { min-height: 158px; padding: 16px 14px; border-radius: 18px; }
+  .t-slide h3 { font-size: 22px; margin: 8px 0 4px; }
+  .t-slide p { font-size: 12px; }
+  .t-slide .bd { font-size: 11px; padding: 4px 8px; }
+  .t-dots { margin-top: 10px; }
+  .t-dots i { width: 14px; height: 4px; } .t-dots i.on { width: 26px; }
+  .t-stories { gap: 10px; padding: 14px 14px 4px; }
+  .t-story { width: 70px; }
+  .t-story .ring { width: 66px; height: 66px; margin-bottom: 5px; }
+  .t-story span { font-size: 11.5px; }
+  .t-sec { margin-top: 20px; }
+  .t-sec-h { padding: 0 14px; margin-bottom: 10px; }
+  .t-sec-h h2 { font-size: 17px; }
+  .t-sec-h p { font-size: 13px; }
+  .t-more { font-size: 13.5px; gap: 6px; }
+  .t-more i { width: 30px; height: 30px; }
+  .t-more i .ic { width: 16px; height: 16px; }
+  .t-cats { gap: 10px; padding: 2px 14px 4px; }
+  .t-cat { width: 72px; }
+  .t-cat .sq { width: 72px; height: 72px; border-radius: 20px; margin-bottom: 6px; }
+  .t-cat span { font-size: 12px; }
+  .t-catgrid { gap: 16px 10px; padding: 14px; }
+  .t-row { grid-auto-columns: 152px; gap: 10px; padding: 2px 14px 8px; }
+  .pc { padding: 10px 10px 12px; border-radius: 16px; border-width: 1px; }
+  .pc-img { margin-bottom: 8px; }
+  .pc-strip { width: 24px; font-size: 10.5px; }
+  .pc-add { width: 36px; height: 36px; top: 6px; right: 4px; }
+  .pc-add .ic { width: 19px; height: 19px; }
+  .pc-qty { height: 36px; top: 6px; left: 4px; right: 4px; }
+  .pc-qty button { width: 36px; height: 36px; font-size: 18px; }
+  .pc-qty .ic { width: 17px; height: 17px; }
+  .pc-qty b { font-size: 14px; }
+  .pc-tag { font-size: 11px; padding: 3px 7px; }
+  .pc-unit { font-size: 11.5px; min-height: 15px; }
+  .pc-price { font-size: 17px; margin-top: 2px; }
+  .pc-old { gap: 8px; min-height: 24px; margin-top: 2px; }
+  .pc-old s { font-size: 13px; }
+  .pc-pct { font-size: 12px; padding: 2px 7px; }
+  .pc-brand { font-size: 11.5px; margin-top: 8px; }
+  .pc-name { font-size: 13.5px; }
+  .t-tiles { gap: 10px; padding: 0 14px; }
+  .t-tile { min-height: 150px; padding: 12px; border-radius: 18px; }
+  .t-tile.wide { min-height: 120px; }
+  .t-tile small { font-size: 11px; }
+  .t-tile b { font-size: 38px; }
+  .t-tile b sup { font-size: 20px; }
+  .t-tile em { font-size: 12px; }
+  .t-tile .art img { width: 48px; }
+  .t-tile.wide .art img { width: 66px; }
+  .t-paybar { margin: 0 14px; padding: 12px 14px; gap: 12px; }
+  .t-paybar b { font-size: 28px; }
+  .t-paybar span { font-size: 12px; }
+  .t-paybar em { font-size: 12px; padding: 5px 9px; }
+  .t-pays { padding: 0 14px; gap: 8px; }
+  .t-pay { padding: 12px; gap: 12px; border-radius: 16px; }
+  .t-pay img { width: 42px; }
+  .t-pay b { font-size: 15.5px; }
+  .t-pay span { font-size: 12.5px; }
+  .t-nav { padding: 6px 0 calc(6px + env(safe-area-inset-bottom)); }
+  .t-nav a { font-size: 11.5px; gap: 2px; }
+  .t-nav a .ic { width: 24px; height: 24px; }
+  .t-fab { bottom: calc(64px + env(safe-area-inset-bottom)); padding: 11px 14px; font-size: 14px; border-radius: 14px; left: 12px; right: 12px; }
+  .t-fab b { font-size: 15px; }
+  .t-fab .ic { width: 20px; height: 20px; }
+  .t-top { padding: calc(8px + env(safe-area-inset-top)) 12px 8px; gap: 8px; }
+  .t-top h1 { font-size: 18px; }
+  .t-top .link { font-size: 14px; }
+  .t-back { width: 38px; height: 38px; }
+  .t-back .ic { width: 22px; height: 22px; }
+  .t-chips { padding: 10px 14px; gap: 6px; }
+  .t-chips button { padding: 8px 14px; font-size: 13.5px; border-radius: 10px; }
+  .t-res { padding: 12px 14px; }
+  .t-res span, .t-res button { font-size: 14px; }
+  .t-res .ic { width: 18px; height: 18px; }
+  .pd-img { height: 270px; }
+  .pd-img .share { right: 12px; top: 12px; }
+  .pd-info { padding: 14px 14px 16px; }
+  .pd-info small { font-size: 12.5px; }
+  .pd-info h1 { font-size: 20px; margin: 2px 0 6px; }
+  .pd-info p { font-size: 12.5px; }
+  .t-acc { margin: 12px 14px; border-radius: 16px; }
+  .t-acc h3 { padding: 13px 14px; font-size: 14.5px; }
+  .t-acc summary, .t-acc .row { padding: 14px; font-size: 14.5px; gap: 12px; }
+  .t-acc .row .ic, .t-acc summary .ic { width: 20px; height: 20px; }
+  .t-acc .body { padding: 0 14px 14px; font-size: 13.5px; }
+  .pd-bar { padding: 10px 14px calc(10px + env(safe-area-inset-bottom)); }
+  .pd-bar .pr b { font-size: 23px; }
+  .pd-bar .pr2 { margin: 0 0 10px; }
+  .pd-bar .pr2 s { font-size: 14px; }
+  .pd-bar .pr2 small { font-size: 12.5px; }
+  .t-btn { height: 46px; font-size: 16px; border-radius: 14px; }
+  .t-stepper { height: 46px; border-radius: 14px; }
+  .t-stepper button { width: 40px; height: 40px; }
+  .t-stepper .ic { width: 20px; height: 20px; }
+  .t-stepper b { font-size: 16px; }
+  .t-stepper.sm { height: 38px; width: 120px; border-radius: 10px; }
+  .t-stepper.sm button { width: 34px; height: 34px; }
+  .t-stepper.sm .ic { width: 18px; height: 18px; }
+  .ct-count { padding: 14px; font-size: 14px; }
+  .ct-item { grid-template-columns: 72px 1fr auto; padding: 12px 14px; gap: 8px 12px; }
+  .ct-item .im { width: 72px; height: 72px; }
+  .ct-item b { font-size: 14.5px; }
+  .ct-item small { font-size: 12.5px; }
+  .ct-item .pr b { font-size: 15px; }
+  .ct-item .pr s { font-size: 12.5px; }
+  .ct-note { width: 38px; height: 38px; }
+  .ct-note .ic { width: 20px; height: 20px; }
+  .ct-opt { padding: 12px 14px; gap: 12px; }
+  .ct-opt .ico { width: 42px; height: 42px; border-radius: 12px; }
+  .ct-opt b { font-size: 14px; } .ct-opt span { font-size: 12.5px; }
+  .ct-sum { padding: 14px 14px calc(10px + env(safe-area-inset-bottom)); border-radius: 18px 18px 0 0; }
+  .ct-disc { padding: 11px 14px; font-size: 14.5px; }
+  .ct-tot { font-size: 16.5px; margin: 12px 0 8px; }
+  .ct-info { font-size: 12.5px; padding: 10px 12px; margin-bottom: 10px; }
+  .t-sheet .hd { padding: 0 14px 10px; }
+  .t-sheet .hd h2 { font-size: 16.5px; }
+  .t-sheet .x { width: 36px; height: 36px; }
+  .t-sheet .opt { padding: 13px 14px; font-size: 14.5px; }
+  .t-sheet .ft { padding: 12px 14px 0; }
+  .ac-hello { margin: 12px 14px; border-radius: 18px; }
+  .ac-hello .top { padding: 14px; gap: 12px; }
+  .ac-hello .av { width: 48px; height: 48px; font-size: 20px; }
+  .ac-hello b { font-size: 16px; } .ac-hello span { font-size: 13px; }
+  .ac-promo { padding: 14px; border-radius: 16px; }
+  .ac-promo img { width: 58px; }
+  .ac-promo b { font-size: 14px; }
+  .ac-promo button { padding: 6px 12px; font-size: 13px; margin-top: 8px; }
+  .t-form { padding: 14px; gap: 12px; }
+  .t-form label > span { font-size: 13px; margin-bottom: 4px; }
+  .t-form input, .t-form textarea { padding: 11px 12px; font-size: 15px; border-radius: 12px; }
+  .t-seg label { padding: 11px; font-size: 14px; border-radius: 12px; }
+  .t-empty { padding: 44px 20px; }
+  .t-empty img { width: 84px; }
+  .t-empty h2 { font-size: 17px; }
+  .t-foot-note { font-size: 11.5px; }
+}
+
+/* Ajuste fino de textos en celular (proporción de la app de referencia) */
+@media (max-width: 759px) {
+  body.tienda { font-size: 13px; }
+  .t-store small { font-size: 10.5px; }
+  .t-store b { font-size: 13px; }
+  .t-search { height: 40px; }
+  .t-search input { font-size: 14px; }
+  .t-strip { font-size: 11.5px; padding: 7px 10px; }
+  .t-slide { min-height: 150px; }
+  .t-slide h3 { font-size: 20px; }
+  .t-slide p { font-size: 11.5px; }
+  .t-story { width: 66px; }
+  .t-story .ring { width: 62px; height: 62px; }
+  .t-story span { font-size: 10.5px; }
+  .t-sec { margin-top: 18px; }
+  .t-sec-h h2 { font-size: 15px; font-weight: 600; }
+  .t-sec-h p { font-size: 11.5px; margin-top: 1px; }
+  .t-more { font-size: 12px; }
+  .t-more i { width: 28px; height: 28px; }
+  .t-cat { width: 68px; }
+  .t-cat .sq { width: 68px; height: 68px; border-radius: 18px; }
+  .t-cat span { font-size: 11px; }
+  .t-row { grid-auto-columns: 150px; }
+  .pc-unit { font-size: 10.5px; }
+  .pc-price { font-size: 15.5px; }
+  .pc-old s { font-size: 12px; }
+  .pc-pct { font-size: 11px; padding: 2px 6px; }
+  .pc-brand { font-size: 10.5px; margin-top: 7px; }
+  .pc-name { font-size: 12.5px; }
+  .pc-strip { font-size: 9.5px; width: 22px; }
+  .pc-out { font-size: 11px; }
+  .t-tile b { font-size: 34px; }
+  .t-tile em { font-size: 11px; }
+  .t-pay b { font-size: 14px; } .t-pay span { font-size: 11.5px; } .t-pay small { font-size: 10.5px; }
+  .t-nav a { font-size: 10.5px; }
+  .t-nav a .ic { width: 22px; height: 22px; }
+  .t-fab { font-size: 13px; padding: 10px 14px; }
+  .t-fab b { font-size: 14px; }
+  .t-top h1 { font-size: 16px; }
+  .t-top .link { font-size: 13px; }
+  .t-chips button { font-size: 12.5px; padding: 7px 12px; }
+  .t-res span, .t-res button { font-size: 13px; }
+  .pd-img { height: 250px; }
+  .pd-info small { font-size: 11.5px; }
+  .pd-info h1 { font-size: 17px; }
+  .pd-info p { font-size: 11.5px; }
+  .t-acc h3 { font-size: 13.5px; padding: 12px 14px; }
+  .t-acc summary, .t-acc .row { font-size: 13.5px; padding: 12px 14px; }
+  .t-acc .body { font-size: 12.5px; }
+  .pd-bar .pr b { font-size: 20px; }
+  .pd-bar .pr2 s { font-size: 12.5px; } .pd-bar .pr2 small { font-size: 11.5px; }
+  .t-btn { height: 44px; font-size: 15px; }
+  .t-stepper { height: 44px; }
+  .t-stepper b { font-size: 15px; }
+  .ct-count { font-size: 13px; padding: 12px 14px; }
+  .ct-item b { font-size: 13px; } .ct-item small { font-size: 11.5px; }
+  .ct-item .pr b { font-size: 13.5px; } .ct-item .pr s { font-size: 11.5px; }
+  .ct-opt b { font-size: 13px; } .ct-opt span { font-size: 11.5px; }
+  .ct-disc { font-size: 13.5px; padding: 10px 12px; }
+  .ct-tot { font-size: 15px; }
+  .ct-info { font-size: 11.5px; }
+  .t-sheet .hd h2 { font-size: 15px; }
+  .t-sheet .opt { font-size: 13.5px; }
+  .ac-hello b { font-size: 15px; } .ac-hello span { font-size: 12px; }
+  .ac-promo b { font-size: 13px; }
+  .t-form label > span { font-size: 12px; }
+  .t-form input, .t-form textarea { font-size: 14px; padding: 10px 12px; }
+  .t-seg label { font-size: 13px; padding: 10px; }
+  .t-empty h2 { font-size: 16px; } .t-empty p { font-size: 13px; }
+}

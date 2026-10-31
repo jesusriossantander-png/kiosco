@@ -450,3 +450,91 @@ h3 { font-size: 15px; }
   .clock { padding: 4px 10px; }
   .clock b { font-size: 15px; }
 }
+
+/* ===== Panel en el celular: más compacto ===== */
+@media (max-width: 760px) {
+  body { font-size: 14px; }
+  .topbar { padding: 8px 12px; gap: 8px; }
+  .topbar h1 { font-size: 17px; }
+  .icon-btn { font-size: 18px; padding: 4px 7px; }
+  .pill { font-size: 11px; padding: 3px 8px; }
+  .view { padding: 10px 10px 84px; }
+  .sidebar { width: 252px; }
+  .brand { padding: 14px 12px 10px; }
+  .brand-logo { width: 38px; height: 38px; }
+  .brand b { font-size: 14px; }
+  .nav a { padding: 8px 10px; font-size: 14px; gap: 10px; }
+  .nav a .ico svg { width: 19px; height: 19px; }
+  .nav-sep { padding: 10px 10px 4px; font-size: 10.5px; }
+  .card { padding: 12px; border-radius: 16px; }
+  .card + .card { margin-top: 10px; }
+  .kpis { gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 10px; }
+  .kpi { padding: 11px 12px; border-radius: 14px; }
+  .kpi small { font-size: 11.5px; }
+  .kpi b { font-size: 18px; }
+  .kpi .sub { font-size: 11px; }
+  .grid { gap: 10px; }
+  h2 { font-size: 16px; } h3 { font-size: 14px; }
+  .btn { min-height: 36px; padding: 6px 12px; font-size: 13.5px; border-radius: 10px; }
+  .btn.sm { min-height: 30px; padding: 4px 9px; font-size: 12.5px; }
+  .btn.lg { min-height: 42px; font-size: 15px; padding: 8px 14px; }
+  .btn.xl { min-height: 48px; font-size: 17px; padding: 10px 16px; border-radius: 14px; }
+  .input, .form input:not([type=checkbox]):not([type=radio]):not([type=file]), .form select, .form textarea, select.input, textarea.input, .pick-btn { min-height: 38px; padding: 7px 10px; font-size: 14px; }
+  .input.lg, .pick-btn.lg { min-height: 42px; font-size: 15px; }
+  .input.xl { min-height: 48px; font-size: 21px; }
+  .lbl, .form label > span { font-size: 12px; }
+  .table { font-size: 13px; }
+  .table th, .table td { padding: 7px 8px; }
+  .tabs button { padding: 8px 10px; font-size: 13.5px; }
+  .actions-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .action { padding: 10px 6px; font-size: 12.5px; border-radius: 14px; gap: 4px; }
+  .action span { font-size: 22px; }
+  .banner { padding: 8px 12px; font-size: 13px; }
+  .cart-row { padding: 8px 10px; gap: 6px 10px; }
+  .cr-name b { font-size: 14px; } .cr-name small { font-size: 12px; }
+  .qty button { width: 30px; height: 30px; font-size: 16px; }
+  .qty input { width: 46px; height: 30px; }
+  .quick { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .quick button { min-height: 64px; padding: 6px 4px; font-size: 11.5px; }
+  .quick button img { width: 30px; height: 30px; }
+  .quick button b { font-size: 11.5px; }
+  .totals .big { font-size: 24px; }
+  .pos-mobilebar { padding: 6px 12px; bottom: calc(52px + env(safe-area-inset-bottom)); }
+  .pos-mobilebar b { font-size: 18px; }
+  .co-total #co-tot { font-size: 30px; }
+  .medios { gap: 6px; }
+  .medio { padding: 8px 4px; font-size: 12px; }
+  .medio span { font-size: 19px; }
+  .vuelto { font-size: 18px; padding: 8px; }
+  .modal > header { padding: 11px 14px; }
+  .modal > header h2 { font-size: 15.5px; }
+  .modal-body { padding: 12px 14px; }
+  .modal > footer { padding: 10px 14px; }
+  .pick-opt { padding: 10px 12px; font-size: 14px; }
+  .bottombar a { padding: 6px 0 5px; }
+  .bottombar a svg { width: 21px; height: 21px; }
+  .bottombar a span { font-size: 10.5px; }
+  .login-card { padding: 20px; }
+  .login-logo { width: 58px; height: 58px; padding: 11px; }
+  .login-card h1 { font-size: 19px; }
+  .login-users button { padding: 10px; }
+  .pinpad button { padding: 11px; font-size: 18px; }
+  .hist-row { padding: 9px 12px; gap: 4px 10px; }
+  .hist-row b { font-size: 13.5px; } .hist-row .det { font-size: 12.5px; }
+  .foto-box > img { width: 72px; height: 72px; }
+  .prod-card .emo { width: 52px; height: 52px; }
+  .prod-card .price { font-size: 22px; }
+  .toast { font-size: 13px; padding: 9px 12px; }
+}
+@media (max-width: 760px) {
+  body { font-size: 13px; }
+  .topbar h1 { font-size: 16px; }
+  .clock b { font-size: 14px; }
+  .nav a { font-size: 13.5px; }
+  .kpi b { font-size: 17px; } .kpi small { font-size: 11px; }
+  .btn { font-size: 13px; }
+  .input, .form input:not([type=checkbox]):not([type=radio]):not([type=file]), .form select, .form textarea, select.input, textarea.input, .pick-btn { font-size: 13.5px; }
+  .table { font-size: 12.5px; }
+  .cr-name b { font-size: 13px; }
+  .totals .big { font-size: 22px; }
+}
