@@ -203,6 +203,8 @@ App.register('config', {
       const draw = () => {
         body.innerHTML = `<div class="card form"><h3>Aviso superior</h3><p class="muted small">La franja de color arriba de todo en la app y la landing.</p>
             <input id="ap-aviso" value="${esc(ap.aviso || '')}" placeholder="Ej: 🛵 Envío sin cargo desde $15.000"></div>
+          <div class="card form"><h3>Productos sin stock</h3><p class="muted small">Qué ven tus clientes cuando un producto llega a 0 en el panel. Además, nunca se puede pedir más cantidad de la que hay.</p>
+            <select id="ap-sinstock">${opts([['agotado', 'Mostrarlos como "Sin stock" y no dejar pedirlos (recomendado)'], ['ocultar', 'Ocultarlos de la app y la landing'], ['permitir', 'Dejar pedirlos igual (el cliente consulta por WhatsApp)']], ap.sinStock || 'agotado', x => x[0], x => x[1])}</select></div>
           <div class="card form"><div class="card-h"><h3>Banners que pasan solos (carrusel)</h3><button class="btn sm" id="ap-addb">+ Banner</button></div>
             ${ap.banners.map((b, i) => `<div class="card" style="box-shadow:none;margin-top:10px" data-b="${i}"><div class="grid3">
               <label><span>Título</span><input data-k="titulo" value="${esc(b.titulo)}"></label><label><span>Texto</span><input data-k="sub" value="${esc(b.sub)}"></label><label><span>Etiqueta</span><input data-k="badge" value="${esc(b.badge || '')}" placeholder="HASTA 25%"></label></div>
@@ -216,6 +218,7 @@ App.register('config', {
           <p class="muted small mt">Para que lo vean tus clientes en otros celulares, después de guardar usá Productos → Publicar catálogo.</p>`;
         const leer = () => {
           ap.aviso = $('#ap-aviso', body).value.trim();
+          ap.sinStock = $('#ap-sinstock', body).value;
           $$('[data-b]', body).forEach(c => { const b = ap.banners[+c.dataset.b]; $$('[data-k]', c).forEach(i => { b[i.dataset.k] = i.value.trim(); }); });
           $$('[data-pp]', body).forEach(c => { const x = ap.promosPago[+c.dataset.pp]; $$('[data-k]', c).forEach(i => { x[i.dataset.k] = i.value.trim(); }); });
         };

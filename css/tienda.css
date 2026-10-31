@@ -508,3 +508,8 @@ body.tienda { background: var(--soft); color: var(--ink); font-family: Inter, sy
   .t-seg label { font-size: 13px; padding: 10px; }
   .t-empty h2 { font-size: 16px; } .t-empty p { font-size: 13px; }
 }
+
+/* Productos sin stock */
+.pc.agotado .pc-img img { filter: grayscale(1); opacity: .45; }
+.pc.agotado .pc-price, .pc.agotado .pc-old { opacity: .55; }
+.pc-sin { position: absolute; top: 8px; right: 6px; z-index: 3; background: #f3f4f6; color: #6b7280; border: 1px solid #e5e7eb; font-size: 11.5px; font-weight: 700; padding: 6px 10px; border-radius: 99px; }

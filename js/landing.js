@@ -4,6 +4,7 @@
   let cat;
   try { cat = await Catalogo.cargar(); } catch { cat = { negocio: {}, app: {}, rubros: [], productos: [] }; }
   const n = cat.negocio || {}, a = cat.app || {};
+  Tienda.setModoStock(a.sinStock);
   const cart = (() => { try { return JSON.parse(localStorage.getItem('cliente:cart')) || {}; } catch { return {}; } })();
 
   $$('[data-n]').forEach(el => { if (n[el.dataset.n]) el.textContent = n[el.dataset.n]; });
@@ -41,7 +42,14 @@
       const code = b.dataset.add || b.dataset.inc || b.dataset.dec;
       const p = cat.productos.find(x => x.c === code);
       const step = p.k ? 0.25 : 1;
-      cart[code] = round3((cart[code] || 0) + (b.dataset.dec ? -step : step));
+      let nuevo = round3((cart[code] || 0) + (b.dataset.dec ? -step : step));
+      const max = Tienda.maximo(p);
+      if (!b.dataset.dec && (Tienda.agotado(p) || (max != null && nuevo > max))) {
+        UI.toast(Tienda.agotado(p) || max <= 0 ? `${p.n} está sin stock` : `Solo quedan ${fmtN(max, 3)} de ${p.n}`, 'warn');
+        if (Tienda.agotado(p) || (cart[code] || 0) >= max) return;
+        nuevo = max;
+      }
+      cart[code] = nuevo;
       if (cart[code] <= 0) delete cart[code];
       localStorage.setItem('cliente:cart', JSON.stringify(cart));
       $$(`[data-ctl="${CSS.escape(code)}"]`).forEach(el => { el.innerHTML = Tienda.control(p, cart[code] || 0); });

@@ -22,6 +22,11 @@ const C = (() => {
   const count = () => items().length;
   function setCant(code, n) {
     n = round3(n);
+    const p = byCode(code), max = p && Tienda.maximo(p);
+    if (p && n > (cart[code] || 0)) {
+      if (Tienda.agotado(p)) { UI.toast(`${p.n} está sin stock`, 'warn'); return false; }
+      if (max != null && n > max) { UI.toast(max > 0 ? `Solo quedan ${fmtN(max, 3)}${p.k ? ' kg' : ''} de ${p.n}` : `${p.n} está sin stock`, 'warn'); if ((cart[code] || 0) >= max) return false; n = max; }
+    }
     if (n <= 0) { delete cart[code]; delete notas[code]; } else cart[code] = n;
     ls.set('cart', cart); ls.set('notas', notas);
     $$(`[data-ctl="${CSS.escape(code)}"]`).forEach(el => { el.innerHTML = Tienda.control(byCode(code), cart[code] || 0); });
@@ -36,7 +41,7 @@ const C = (() => {
       const code = b.dataset.add || b.dataset.inc || b.dataset.dec;
       const p = byCode(code);
       if (!p) return;
-      if (b.dataset.add) { setCant(code, paso(p)); if (navigator.vibrate) navigator.vibrate(15); UI.toast(`Agregaste ${p.n}`, 'ok', 1600); }
+      if (b.dataset.add) { if (setCant(code, paso(p)) !== false) { if (navigator.vibrate) navigator.vibrate(15); UI.toast(`Agregaste ${p.n}`, 'ok', 1600); } }
       else if (b.dataset.inc) setCant(code, (cart[code] || 0) + paso(p));
       else setCant(code, (cart[code] || 0) - paso(p));
       if (['carrito', 'p'].includes(ruta().v)) render();
@@ -217,7 +222,7 @@ const C = (() => {
       <div class="pd-img"><img src="${esc(Tienda.foto(p))}" alt="${esc(p.n)}" class="${p.i ? 'real' : ''}"><button class="t-round share" id="pd-share" aria-label="Compartir">${I('share')}</button></div>
       <div class="pd-info">${p.m ? `<small>${esc(p.m)}</small>` : ''}<h1>${esc(p.n)}</h1><p>Código: ${esc(p.c)}${p.o && p.h ? ` · Oferta válida hasta el ${fechaISO(p.h)}` : ''}</p></div>
       <div class="t-acc"><h3>Información del producto</h3>
-        <details><summary>Detalles ${I('right')}</summary><div class="body">Categoría: ${esc(p.r)}${p.m ? `<br>Marca: ${esc(p.m)}` : ''}${c ? `<br>Contenido: ${esc(c.txt)}` : ''}${p.k ? '<br>Se vende por peso: elegí la cantidad en kg.' : ''}<br>${p.s ? '✅ Disponible en el local' : '⚠️ Consultá disponibilidad por WhatsApp'}</div></details>
+        <details><summary>Detalles ${I('right')}</summary><div class="body">Categoría: ${esc(p.r)}${p.m ? `<br>Marca: ${esc(p.m)}` : ''}${c ? `<br>Contenido: ${esc(c.txt)}` : ''}${p.k ? '<br>Se vende por peso: elegí la cantidad en kg.' : ''}<br>${p.s ? '✅ Disponible' : Tienda.agotado(p) ? '⛔ Sin stock por ahora' : '⚠️ Consultá disponibilidad por WhatsApp'}</div></details>
         <details><summary>Cómo comprar ${I('right')}</summary><div class="body">Agregalo al carro, completá tus datos y enviá el pedido por WhatsApp. Te avisamos cuando está listo para retirar o sale para tu casa.</div></details>
         <details><summary>Medios de pago ${I('right')}</summary><div class="body">Efectivo, débito, crédito, QR o transferencia${cat.negocio.alias ? ` (alias <b>${esc(cat.negocio.alias)}</b>)` : ''}.</div></details>
       </div>
@@ -226,7 +231,7 @@ const C = (() => {
     <div class="pd-bar"><div class="pr"><b>${M(p.p)}</b>${p.o ? `<span class="pc-pct">${Tienda.pct(p)}%</span>` : ''}${p.k ? '<small>por kg</small>' : ''}</div>
       <div class="pr2">${p.o ? `<s>${M(p.o)}</s>` : ''}<small>${esc(Tienda.unidad(p))}</small></div>
       ${q ? `<div class="t-stepper"><button class="${q <= paso(p) ? 'del' : ''}" data-dec="${esc(p.c)}" aria-label="Quitar">${q <= paso(p) ? I('trash') : I('minus')}</button><b>${fmtN(q, 3)}${p.k ? ' kg' : ''}</b><button data-inc="${esc(p.c)}" aria-label="Agregar">${I('plus')}</button></div>`
-        : `<button class="t-btn" data-add="${esc(p.c)}">Agregar al carro</button>`}</div>`;
+        : Tienda.agotado(p) ? '<button class="t-btn" disabled>Sin stock por ahora</button>' : `<button class="t-btn" data-add="${esc(p.c)}">Agregar al carro</button>`}</div>`;
     bindComunes();
     $('#pd-share').onclick = () => {
       const url = location.href;
@@ -235,7 +240,21 @@ const C = (() => {
     };
   }
 
+  /* Saca del carro lo que se quedó sin stock y ajusta cantidades al disponible */
+  function ajustarStock() {
+    const avisos = [];
+    Object.entries(cart).forEach(([c, n]) => {
+      const p = byCode(c);
+      if (!p) return;
+      const max = Tienda.maximo(p);
+      if (Tienda.agotado(p)) { delete cart[c]; delete notas[c]; avisos.push(`${p.n} se quedó sin stock`); }
+      else if (max != null && n > max) { cart[c] = max; avisos.push(`${p.n}: solo quedan ${fmtN(max, 3)}`); }
+    });
+    if (avisos.length) { ls.set('cart', cart); ls.set('notas', notas); UI.toast('Actualizamos tu carro: ' + avisos.join(' · '), 'warn', 6000); }
+  }
+
   function carrito() {
+    ajustarStock();
     const its = items();
     const head = top('<h1>Mi carro</h1>', its.length ? '<button class="link" id="ct-vaciar">Vaciar</button>' : '');
     if (!its.length) {
@@ -283,6 +302,7 @@ const C = (() => {
   }
 
   function checkout() {
+    ajustarStock();
     const its = items();
     if (!its.length) return go('#/carrito');
     const pf = perfil();
@@ -406,6 +426,8 @@ const C = (() => {
     try { cat = await Catalogo.cargar(); }
     catch { app.innerHTML = `<div class="t-empty"><img src="${Tienda.img3d('📶')}" alt=""><h2>No pudimos cargar el catálogo</h2><p>Revisá tu conexión e intentá de nuevo.</p></div>`; return; }
     document.title = `${cat.negocio.nombre || 'Kiosco'} · Pedí online`;
+    Tienda.setModoStock(cat.app && cat.app.sinStock);
+    ajustarStock();
     Object.keys(cart).forEach(c => { if (!byCode(c)) delete cart[c]; });
     ls.set('cart', cart);
     render();

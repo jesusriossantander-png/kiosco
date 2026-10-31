@@ -47,6 +47,7 @@ const DB = (() => {
         arca: { habilitado: false },
         app: {
           aviso: '🛵 Envío sin cargo desde $15.000 · Pedí hasta las 23:30',
+          sinStock: 'agotado',
           banners: [
             { titulo: 'Fin de semana de ofertas', sub: 'Hasta 25% OFF en bebidas, golosinas y snacks', badge: 'HASTA 25%', color: 'naranja', emoji: '🥤🍫🍟', link: 'ofertas' },
             { titulo: 'Pagá con QR y ahorrá', sub: '10% de reintegro con billeteras virtuales · tope $2.000', badge: 'PROMO PAGOS', color: 'verde', emoji: '📱💳', link: 'ahorros' },

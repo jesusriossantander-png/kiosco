@@ -1,5 +1,5 @@
 /* Service worker: la app funciona sin internet. Subí VERSION al publicar cambios. */
-const VERSION = 'kiosco-v7';
+const VERSION = 'kiosco-v8';
 const SHELL = [
   './', 'index.html', 'panel.html', 'cliente.html', 'js/landing.js', 'js/catalogo.js', 'manifest.json', 'manifest-cliente.json',
   'css/app.css', 'css/tienda.css', 'img/icon.svg', 'img/icon-192.png', 'img/icon-512.png',

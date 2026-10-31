@@ -7,14 +7,15 @@ const Catalogo = (() => {
     const hoy = isoDate();
     const conOferta = p => p.oferta && +p.oferta.precio > 0 && (!p.oferta.hasta || p.oferta.hasta >= hoy) && +p.oferta.precio < +p.precios[0];
     const n = g.config.negocio;
-    const productos = d.productos.filter(p => p.publicar !== false && p.activo !== false && +p.precios[0] > 0).map(p => ({
+    const modo = (g.config.app && g.config.app.sinStock) || 'agotado';
+    const productos = d.productos.filter(p => p.publicar !== false && p.activo !== false && +p.precios[0] > 0 && (modo !== 'ocultar' || p.stock > 0)).map(p => ({
       c: p.codigo, n: p.nombre, r: p.rubro, m: p.marca, p: conOferta(p) ? +p.oferta.precio : +p.precios[0], o: conOferta(p) ? +p.precios[0] : 0,
-      h: conOferta(p) ? p.oferta.hasta || '' : '', e: p.emoji || EMO[p.rubro] || '📦', i: p.imagen || '', k: p.porPeso ? 1 : 0, s: p.stock > 0 ? 1 : 0, d: p.favorito ? 1 : 0,
+      h: conOferta(p) ? p.oferta.hasta || '' : '', e: p.emoji || EMO[p.rubro] || '📦', i: p.imagen || '', k: p.porPeso ? 1 : 0, s: p.stock > 0 ? 1 : 0, q: Math.max(0, round3(p.stock || 0)), d: p.favorito ? 1 : 0,
     }));
     return {
       actualizado: Date.now(),
       negocio: { nombre: n.nombre, whatsapp: n.whatsapp, direccion: n.direccion, telefono: n.telefono, horario: n.horario, alias: n.alias, mpLink: n.mpLink },
-      app: g.config.app || {},
+      app: { ...(g.config.app || {}), sinStock: modo },
       rubros: g.config.rubros.filter(r => productos.some(p => p.r === r)),
       productos,
     };
@@ -99,7 +100,15 @@ const Tienda = (() => {
   }
   const pct = p => (p.o ? Math.round((1 - p.p / p.o) * 100) : 0);
 
+  /* Productos sin stock: 'agotado' (se ven pero no se pueden pedir), 'ocultar' o 'permitir' (se pueden pedir igual) */
+  let modoStock = 'agotado';
+  const setModoStock = m => { modoStock = m || 'agotado'; };
+  const agotado = p => !p.s && modoStock !== 'permitir';
+  /* Máximo que se puede pedir (null = sin límite) */
+  const maximo = p => (modoStock === 'permitir' || p.q == null ? null : p.q);
+
   function control(p, q) {
+    if (agotado(p) && !q) return '<span class="pc-sin">Sin stock</span>';
     if (q) return `<div class="pc-qty" data-stop><button data-dec="${esc(p.c)}" aria-label="Quitar uno">${q <= (p.k ? 0.25 : 1) ? icon('trash') : icon('minus')}</button><b>${fmtN(q, 3)}${p.k ? ' kg' : ''}</b><button data-inc="${esc(p.c)}" aria-label="Agregar uno">${icon('plus')}</button></div>`;
     return `<button class="pc-add" data-add="${esc(p.c)}" aria-label="Agregar ${esc(p.n)} al carro">${icon('cartPlus')}</button>`;
   }
@@ -107,7 +116,7 @@ const Tienda = (() => {
   function card(p, q = 0) {
     const c = contenido(p.n);
     const strip = c ? c.txt : p.k ? 'Por kg' : p.r || '';
-    return `<article class="pc" data-p="${esc(p.c)}">
+    return `<article class="pc ${agotado(p) ? 'agotado' : ''}" data-p="${esc(p.c)}">
       <div class="pc-img">${p.d && !p.o ? '<span class="pc-tag">Más vendido</span>' : ''}<img src="${esc(foto(p))}" alt="" loading="lazy" class="${p.i ? 'real' : ''}">
         <span class="pc-strip" style="background:${COLOR[p.r] || '#475569'}">${esc(strip)}</span>
         <span data-ctl="${esc(p.c)}">${control(p, q)}</span></div>
@@ -115,7 +124,7 @@ const Tienda = (() => {
       <div class="pc-price">${money(p.p)}${p.k ? '<small style="font-size:13px;color:#6b7280"> /kg</small>' : ''}</div>
       <div class="pc-old">${p.o ? `<s>${money(p.o)}</s><span class="pc-pct">${pct(p)}%</span>` : ''}</div>
       ${p.m ? `<div class="pc-brand">${esc(p.m)}</div>` : '<div class="pc-brand">&nbsp;</div>'}
-      <div class="pc-name">${esc(p.n)}</div>${p.s ? '' : '<div class="pc-out">Consultar disponibilidad</div>'}
+      <div class="pc-name">${esc(p.n)}</div>${p.s ? '' : `<div class="pc-out">${agotado(p) ? 'Sin stock por ahora' : 'Consultar disponibilidad'}</div>`}
     </article>`;
   }
 
@@ -164,5 +173,5 @@ const Tienda = (() => {
       <div class="art">${t.es.map(e => `<img src="${img3d(e)}" alt="">`).join('')}</div></button>`).join('');
   }
 
-  return { icon, img3d, money, foto, card, control, carousel, activar, detener, mosaico, unidad, contenido, pct, COLOR, graf };
+  return { setModoStock, agotado, maximo, icon, img3d, money, foto, card, control, carousel, activar, detener, mosaico, unidad, contenido, pct, COLOR, graf };
 })();
