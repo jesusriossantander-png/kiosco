@@ -48,7 +48,11 @@ const C = (() => {
       return;
     }
     const card = e.target.closest('.pc[data-p]');
-    if (card && !e.target.closest('[data-stop]')) go('#/p/' + encodeURIComponent(card.dataset.p));
+    if (card && !e.target.closest('[data-stop]')) {
+      const im = $('.pc-img img', card);
+      if (im) hero = { code: card.dataset.p, rect: rectOf(im), src: im.currentSrc || im.src };
+      go('#/p/' + encodeURIComponent(card.dataset.p));
+    }
   });
 
   /* ---------- Rutas (#/inicio, #/lista?r=..., #/p/codigo, #/carrito…) ---------- */
@@ -58,9 +62,80 @@ const C = (() => {
     const [v, ...rest] = path.split('/');
     return { v, id: decodeURIComponent(rest.join('/')), q: new URLSearchParams(qs || '') };
   }
-  const go = h => { location.hash = h; };
+  /* ---------- Animación de la foto (de la tarjeta a la ficha y de vuelta) ---------- */
+  let hero = null, adelante = false, actual = location.hash;
+  const scrolls = {};
+  const sinMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rectOf = el => { const r = el.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
+  const visible = r => r.w > 0 && r.y + r.h > 0 && r.y < innerHeight && r.x + r.w > 0 && r.x < innerWidth;
+  /* Una copia de la imagen viaja desde "from" hasta el lugar de "toEl" */
+  function volar(src, from, toEl, dur = 420) {
+    if (sinMovimiento || !toEl) return;
+    const to = rectOf(toEl);
+    if (!visible(to) || !from || !from.w) return;
+    const c = document.createElement('img');
+    c.src = src;
+    c.className = 'hero-fly';
+    Object.assign(c.style, { left: to.x + 'px', top: to.y + 'px', width: to.w + 'px', height: to.h + 'px' });
+    const s = Math.min(from.w / to.w, from.h / to.h);
+    const dx = from.x + from.w / 2 - (to.x + to.w / 2), dy = from.y + from.h / 2 - (to.y + to.h / 2);
+    document.body.append(c);
+    toEl.style.visibility = 'hidden';
+    const a = c.animate([{ transform: `translate(${dx}px, ${dy}px) scale(${s})` }, { transform: 'none' }], { duration: dur, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    const fin = () => { toEl.style.visibility = ''; c.remove(); };
+    a.onfinish = fin; a.oncancel = fin;
+  }
+
+  const go = h => { adelante = true; location.hash = h; };
   const atras = () => (history.length > 1 ? history.back() : go('#/inicio'));
-  window.addEventListener('hashchange', () => { render(); window.scrollTo(0, 0); });
+  window.addEventListener('hashchange', () => {
+    /* Guarda dónde estaba la pantalla anterior (vertical y filas horizontales) */
+    scrolls[actual] = { y: scrollY, rows: $$('.t-row, .t-cats, .t-chips').map(r => r.scrollLeft) };
+    const pd = $('.pd-img img');
+    const vuelta = pd && !hero ? { code: pd.dataset.c, rect: rectOf(pd), src: pd.currentSrc || pd.src } : null;
+    actual = location.hash;
+    const ida = hero; hero = null;
+    const esAdelante = adelante; adelante = false;
+    render();
+    const sv = !esAdelante && scrolls[actual];
+    if (sv) { $$('.t-row, .t-cats, .t-chips').forEach((r, i) => { if (sv.rows[i]) r.scrollLeft = sv.rows[i]; }); window.scrollTo(0, sv.y); }
+    else window.scrollTo(0, 0);
+    if (ida && ruta().v === 'p') { volar(ida.src, ida.rect, $('.pd-img img')); app.classList.add('pd-enter'); setTimeout(() => app.classList.remove('pd-enter'), 600); }
+    else if (vuelta && ruta().v !== 'p') {
+      const dest = $$(`.pc[data-p="${CSS.escape(vuelta.code)}"] .pc-img img`).find(im => visible(rectOf(im)));
+      if (dest) volar(vuelta.src, vuelta.rect, dest, 360);
+    }
+  });
+
+  /* Foto en pantalla completa con zoom (doble toque para acercar) */
+  function verFoto(img) {
+    const from = rectOf(img);
+    const v = h(`<div class="zoom-view" role="dialog" aria-modal="true"><button class="t-back zv-x" aria-label="Volver">${I('back')}</button><div class="zv-in"><img src="${esc(img.currentSrc || img.src)}" alt="${esc(img.alt)}"></div></div>`);
+    document.body.append(v);
+    const big = $('img', v);
+    const anim = (inv, dur) => {
+      if (sinMovimiento) return null;
+      const to = rectOf(big);
+      const s = Math.min(from.w / to.w, from.h / to.h);
+      const t = `translate(${from.x + from.w / 2 - (to.x + to.w / 2)}px, ${from.y + from.h / 2 - (to.y + to.h / 2)}px) scale(${s})`;
+      return big.animate(inv ? [{ transform: 'none' }, { transform: t }] : [{ transform: t }, { transform: 'none' }], { duration: dur, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    };
+    v.animate([{ backgroundColor: 'rgba(255,255,255,0)' }, { backgroundColor: '#fff' }], { duration: 250, fill: 'forwards' });
+    anim(false, 380);
+    let zoom = false;
+    big.addEventListener('dblclick', e => {
+      zoom = !zoom;
+      const r = big.getBoundingClientRect();
+      big.style.transformOrigin = `${e.clientX - r.left}px ${e.clientY - r.top}px`;
+      big.style.transform = zoom ? 'scale(2.2)' : '';
+    });
+    $('.zv-x', v).onclick = () => {
+      big.style.transform = '';
+      v.animate([{ backgroundColor: '#fff' }, { backgroundColor: 'rgba(255,255,255,0)' }], { duration: 260, fill: 'forwards' });
+      const a = anim(true, 300);
+      if (a) a.onfinish = () => v.remove(); else v.remove();
+    };
+  }
 
   /* ---------- Piezas comunes ---------- */
   function cabecera() {
@@ -219,7 +294,7 @@ const C = (() => {
     const c = Tienda.contenido(p.n);
     const rel = cat.productos.filter(x => x.r === p.r && x.c !== p.c).slice(0, 10);
     app.innerHTML = topSearch('') + `<main style="padding-bottom:190px">
-      <div class="pd-img"><img src="${esc(Tienda.foto(p))}" alt="${esc(p.n)}" class="${p.i ? 'real' : ''}"><button class="t-round share" id="pd-share" aria-label="Compartir">${I('share')}</button></div>
+      <div class="pd-img"><img src="${esc(Tienda.foto(p))}" alt="${esc(p.n)}" data-c="${esc(p.c)}" class="${p.i ? 'real' : ''}" title="Tocá para ampliar"><button class="t-round share" id="pd-share" aria-label="Compartir">${I('share')}</button></div>
       <div class="pd-info">${p.m ? `<small>${esc(p.m)}</small>` : ''}<h1>${esc(p.n)}</h1><p>Código: ${esc(p.c)}${p.o && p.h ? ` · Oferta válida hasta el ${fechaISO(p.h)}` : ''}</p></div>
       <div class="t-acc"><h3>Información del producto</h3>
         <details><summary>Detalles ${I('right')}</summary><div class="body">Categoría: ${esc(p.r)}${p.m ? `<br>Marca: ${esc(p.m)}` : ''}${c ? `<br>Contenido: ${esc(c.txt)}` : ''}${p.k ? '<br>Se vende por peso: elegí la cantidad en kg.' : ''}<br>${p.s ? '✅ Disponible' : Tienda.agotado(p) ? '⛔ Sin stock por ahora' : '⚠️ Consultá disponibilidad por WhatsApp'}</div></details>
@@ -233,6 +308,7 @@ const C = (() => {
       ${q ? `<div class="t-stepper"><button class="${q <= paso(p) ? 'del' : ''}" data-dec="${esc(p.c)}" aria-label="Quitar">${q <= paso(p) ? I('trash') : I('minus')}</button><b>${fmtN(q, 3)}${p.k ? ' kg' : ''}</b><button data-inc="${esc(p.c)}" aria-label="Agregar">${I('plus')}</button></div>`
         : Tienda.agotado(p) ? '<button class="t-btn" disabled>Sin stock por ahora</button>' : `<button class="t-btn" data-add="${esc(p.c)}">Agregar al carro</button>`}</div>`;
     bindComunes();
+    $('.pd-img img').onclick = e => verFoto(e.currentTarget);
     $('#pd-share').onclick = () => {
       const url = location.href;
       if (navigator.share) navigator.share({ title: p.n, text: `${p.n} a ${M(p.p)} en ${cat.negocio.nombre || 'el kiosco'}`, url }).catch(() => {});

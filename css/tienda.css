@@ -601,3 +601,22 @@ body.tienda { background: var(--soft); color: var(--ink); font-family: Inter, sy
   .t-empty h2 { font-size: 15px; } .t-empty p { font-size: 12px; }
   .t-foot-note { font-size: 10.5px; }
 }
+
+
+/* ---------- Movimiento al abrir un producto ---------- */
+.pd-img img { width: 62%; height: 82%; max-width: none; max-height: none; object-fit: contain; cursor: zoom-in; }
+.hero-fly { position: fixed; z-index: 120; object-fit: contain; pointer-events: none; transform-origin: center center; will-change: transform; filter: drop-shadow(0 14px 18px rgba(0,0,0,.18)); }
+.pd-enter .pd-info, .pd-enter .t-acc, .pd-enter .t-sec { animation: pdIn .45s cubic-bezier(.2,.8,.2,1) both; }
+.pd-enter .t-acc { animation-delay: .06s; }
+.pd-enter .t-sec { animation-delay: .12s; }
+.pd-enter .pd-bar { animation: pdBar .4s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes pdIn { from { opacity: 0; transform: translateY(26px); } }
+@keyframes pdBar { from { transform: translateY(100%); } }
+.pc { transition: transform .12s; }
+.pc:active { transform: scale(.97); }
+.zoom-view { position: fixed; inset: 0; z-index: 130; display: flex; flex-direction: column; background: rgba(255,255,255,0); }
+.zoom-view .zv-x { position: absolute; top: calc(10px + env(safe-area-inset-top)); left: 10px; z-index: 2; background: rgba(255,255,255,.9); }
+.zoom-view .zv-in { flex: 1; display: flex; align-items: center; justify-content: center; overflow: hidden; touch-action: pinch-zoom; }
+.zoom-view img { width: 92%; height: 70%; object-fit: contain; transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+@media (prefers-reduced-motion: reduce) { .pd-enter * { animation: none !important; } .pc:active { transform: none; } }
+@media (max-width: 759px) { .pd-img img { width: 52%; height: 74%; } }
