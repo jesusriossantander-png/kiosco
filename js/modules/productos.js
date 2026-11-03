@@ -34,7 +34,7 @@ const Productos = (() => {
       <div class="grid3">
         <label><span>Precio de oferta (opcional)</span><input name="ofPrecio" data-num inputmode="decimal" value="${p.oferta && p.oferta.precio || ''}" placeholder="Se muestra tachado el precio normal"></label>
         <label><span>Oferta válida hasta</span><input type="date" name="ofHasta" value="${esc(p.oferta && p.oferta.hasta || '')}"></label>
-        <label><span>Descuento</span><input id="pf-desc" disabled></label>
+        <label><span>Descuento %</span><input id="pf-desc" inputmode="decimal" placeholder="ej: 15" autocomplete="off"></label>
       </div>
       <div class="grid3">
         <label><span>Stock góndola</span><input name="stock" data-num inputmode="decimal" value="${p.stock || 0}" ${nuevo ? '' : 'disabled title="Usá Stock → Ajuste para modificarlo"'}></label>
@@ -62,9 +62,17 @@ const Productos = (() => {
       const c = num($('[name=costo]', body).value), pr = num($('[name=p0]', body).value);
       $('#pf-margen', body).value = c > 0 && pr > 0 ? `${fmtN((pr - c) / c * 100, 1)}% s/costo · ganancia ${fmt(pr - c)}` : '—';
     };
-    const updD = () => { const of = num($('[name=ofPrecio]', body).value), pr = num($('[name=p0]', body).value); $('#pf-desc', body).value = of > 0 && pr > of ? `${Math.round((1 - of / pr) * 100)}% OFF` : '—'; };
-    $('[name=ofPrecio]', body).addEventListener('input', updD);
-    $('[name=p0]', body).addEventListener('input', updD);
+    /* Precio de oferta <-> % de descuento: se puede escribir cualquiera de los dos */
+    const ofIn = $('[name=ofPrecio]', body), pctIn = $('#pf-desc', body), p0In = $('[name=p0]', body);
+    const updD = () => { const of = num(ofIn.value), pr = num(p0In.value); pctIn.value = of > 0 && pr > of ? fmtN((1 - of / pr) * 100, 1) : ''; };
+    const updOf = () => {
+      const pct = num(pctIn.value), pr = num(p0In.value);
+      if (pct > 0 && pct < 100 && pr > 0) ofIn.value = Math.max(1, Math.round(pr * (1 - pct / 100) / 10) * 10);
+      else if (!pctIn.value.trim()) ofIn.value = '';
+    };
+    ofIn.addEventListener('input', updD);
+    pctIn.addEventListener('input', updOf);
+    p0In.addEventListener('input', () => (pctIn.value.trim() && document.activeElement !== ofIn ? updOf() : updD()));
     updD();
     const imgEl = $('#pf-img', body), imgIn = $('[name=imagen]', body);
     const verImg = () => { imgEl.src = imgIn.value || DB.img3d($('[name=emoji]', body).value || DB.emoji(p)); };
