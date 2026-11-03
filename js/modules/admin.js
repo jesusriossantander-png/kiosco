@@ -141,7 +141,8 @@ App.register('config', {
       body.innerHTML = `<div class="grid"><div class="card form" id="cf-v"><h3>Medios de pago</h3>
           ${cfg.medios.map(m => `<label class="check"><input type="checkbox" data-medio="${m.id}" ${m.activo !== false ? 'checked' : ''}> ${m.icon} ${esc(m.nombre)}</label>`).join('')}
           <h3 class="mt">Stock</h3>
-          <label class="check"><input type="checkbox" name="permitirSinStock" ${cfg.stock.permitirSinStock ? 'checked' : ''}> Permitir vender sin stock (solo avisa)</label>
+          <label class="check"><input type="checkbox" name="permitirSinStock" ${cfg.stock.permitirSinStock ? 'checked' : ''}> Permitir vender sin stock sin pedir autorización (no recomendado)</label>
+          <p class="muted small" style="margin:-4px 0 8px">Desactivado: la caja no deja vender más de lo que hay; un administrador o encargado puede autorizarlo con su PIN y queda en el Historial.</p>
           <label><span>Avisar vencimientos con anticipación (días)</span><input name="diasVencimiento" data-num value="${cfg.stock.diasVencimiento}"></label>
           <h3 class="mt">Recargas</h3>
           <label><span>Comisión de recargas %</span><input name="comision" data-num value="${cfg.recargas.comision}"></label>

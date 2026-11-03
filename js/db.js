@@ -19,7 +19,7 @@ const DB = (() => {
 
   function defaultGlobal() {
     return {
-      version: 2,
+      version: 3,
       seeded: false,
       sucursales: [{ id: 'central', nombre: 'Casa central', direccion: '' }],
       usuarios: [
@@ -43,7 +43,7 @@ const DB = (() => {
         recargas: { empresas: ['Claro', 'Personal', 'Movistar', 'Tuenti', 'DirecTV', 'Flow', 'Edenor', 'Edesur', 'Metrogas', 'AySA', 'SUBE'], comision: 4 },
         ticket: { imprimir: 'siempre', cajonAuto: true, ancho: 42, baud: 9600 },
         balanza: { prefijo: '20', modo: 'peso', baud: 9600, comando: 'P' },
-        stock: { permitirSinStock: true, diasVencimiento: 7 },
+        stock: { permitirSinStock: false, diasVencimiento: 7 },
         arca: { habilitado: false },
         app: {
           aviso: '🛵 Envío sin cargo desde $15.000 · Pedí hasta las 23:30',
@@ -154,6 +154,11 @@ const DB = (() => {
         if (p.rubro === 'Cigarrillos') p.publicar = false;
       });
       G.version = 2;
+      await flush();
+    }
+    if ((G.version || 1) < 3) {
+      G.config.stock.permitirSinStock = false;
+      G.version = 3;
       await flush();
     }
     if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});

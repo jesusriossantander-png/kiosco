@@ -68,25 +68,51 @@ const POS = (() => {
     });
   }
 
+  /* ---------- Control de stock ---------- */
+  /* Cantidad de un producto que ya está en esta venta (sin contar la línea "salvo") */
+  const enVenta = (pid, salvo = -1) => cart.items.reduce((a, it, k) => a + (it.pid === pid && k !== salvo ? it.cant : 0), 0);
+  const disponible = (p, salvo = -1) => round3((p.stock || 0) - enVenta(p.id, salvo));
+
+  /* Pide PIN de administrador/encargado para vender sin stock y lo deja registrado */
+  async function autorizarSinStock(lineas) {
+    const u = await UI.autorizar('Vender sin stock');
+    if (!u) return false;
+    cart.forzados = [...new Set([...(cart.forzados || []), ...lineas.map(x => x.p.id)])];
+    persist();
+    lineas.forEach(x => DB.log('ventas', 'Venta sin stock autorizada', `${x.p.nombre} · stock en sistema ${fmtN(x.disp, 3)} · se venden ${fmtN(x.pide, 3)} · autorizó ${u.nombre}`));
+    return true;
+  }
+
+  /* ¿Se puede llevar esta línea a "cant"? Si no alcanza, avisa y ofrece vender igual con autorización */
+  function hayStock(p, cant, salvo = -1) {
+    if (!p || DB.g.config.stock.permitirSinStock || (cart.forzados || []).includes(p.id)) return Promise.resolve(true);
+    const disp = disponible(p, salvo);
+    if (cant <= disp + 1e-9) return Promise.resolve(true);
+    UI.beep(false);
+    return new Promise(res => {
+      let r = false;
+      UI.modal({
+        title: 'Sin stock suficiente',
+        body: `<div class="banner danger">⛔ <b>${esc(p.nombre)}</b>: ${disp > 0 ? `quedan <b>${fmtN(disp, 3)}</b>${p.porPeso ? ' kg' : ''} y se quieren vender <b>${fmtN(cant, 3)}</b>` : 'no hay stock'}.</div>
+          <p class="muted small">Si hay mercadería que todavía no se cargó en el sistema, cargala en <b>Stock → Ajustes → Entrada</b>. Para vender igual hace falta el PIN de un administrador o encargado y queda registrado en el Historial.</p>`,
+        actions: [{ label: 'Cancelar', class: 'primary' }, { label: 'Vender igual (PIN)', onClick: async () => { r = await autorizarSinStock([{ p, disp, pide: cant }]); return r ? undefined : false; } }],
+        onClose: () => { res(r); setTimeout(focusQ); },
+      });
+    });
+  }
+
   async function agregar(p, cant = 1) {
     if (p.porPeso && cant == null) { cant = await pedirPeso(p); if (!cant) return null; }
     const precio = DB.precio(p, cart.lista);
     let idx = p.porPeso ? -1 : cart.items.findIndex(i => i.pid === p.id && !i.manual);
+    if (!(await hayStock(p, round3((idx >= 0 ? cart.items[idx].cant : 0) + cant), idx))) {
+      renderCart();
+      return `<div class="bad-line">⛔ Sin stock de ${esc(p.nombre)}</div>`;
+    }
     if (idx >= 0) cart.items[idx].cant = round3(cart.items[idx].cant + cant);
     else {
       cart.items.push({ pid: p.id, codigo: p.codigo, nombre: p.nombre, cant, precio, costo: p.costo || 0, rubro: p.rubro, porPeso: !!p.porPeso });
       idx = cart.items.length - 1;
-    }
-    const enCarrito = cart.items.filter(i => i.pid === p.id).reduce((a, i) => a + i.cant, 0);
-    if (p.stock - enCarrito < 0) {
-      if (!DB.g.config.stock.permitirSinStock) {
-        cart.items[idx].cant = round3(cart.items[idx].cant - cant);
-        if (cart.items[idx].cant <= 0) cart.items.splice(idx, 1);
-        UI.toast(`Sin stock de ${p.nombre}`, 'error');
-        renderCart();
-        return null;
-      }
-      UI.toast(`Atención: stock insuficiente de ${p.nombre} (quedan ${fmtN(p.stock, 3)})`, 'warn');
     }
     flashIdx = idx;
     persist();
@@ -167,9 +193,45 @@ const POS = (() => {
     persist(); renderCart(); focusQ();
   }
 
-  function cobrar() {
+  async function revisarStock() {
+    if (DB.g.config.stock.permitirSinStock) return true;
+    const faltas = [];
+    new Set(cart.items.map(i => i.pid).filter(Boolean)).forEach(pid => {
+      const p = DB.prod(pid);
+      if (!p || (cart.forzados || []).includes(pid)) return;
+      const pide = round3(enVenta(pid));
+      if (pide > (p.stock || 0) + 1e-9) faltas.push({ p, disp: round3(p.stock || 0), pide });
+    });
+    if (!faltas.length) return true;
+    UI.beep(false);
+    return new Promise(res => {
+      let r = false;
+      UI.modal({
+        title: 'Hay productos sin stock suficiente',
+        body: `<ul class="list-plain">${faltas.map(x => `<li><span>${esc(x.p.nombre)}</span><span class="danger-t">quedan ${fmtN(Math.max(0, x.disp), 3)} · en la venta ${fmtN(x.pide, 3)}</span></li>`).join('')}</ul>
+          <p class="muted small mt">Ajustá las cantidades a lo disponible, o vendé igual con el PIN de un administrador o encargado (queda registrado en el Historial).</p>`,
+        actions: [
+          { label: 'Vender igual (PIN)', onClick: async () => { r = await autorizarSinStock(faltas); return r ? undefined : false; } },
+          { label: 'Ajustar cantidades', class: 'primary', onClick: () => {
+            faltas.forEach(x => {
+              let resto = Math.max(0, x.disp);
+              cart.items.forEach(it => { if (it.pid === x.p.id) { it.cant = round3(Math.min(it.cant, resto)); resto = round3(resto - it.cant); } });
+            });
+            cart.items = cart.items.filter(it => it.cant > 0);
+            persist(); renderCart();
+            UI.toast('Cantidades ajustadas al stock. Revisá la venta y cobrá de nuevo.', 'warn', 5000);
+          } },
+        ],
+        onClose: () => res(r),
+      });
+    });
+  }
+
+  async function cobrar() {
     if (!cart.items.length) { UI.toast('No hay productos en la venta', 'warn'); return; }
     if (!Caja.actual()) { Caja.abrirModal(() => { App.refresh(); setTimeout(cobrar, 50); }); return; }
+    if (!(await revisarStock())) return;
+    if (!cart.items.length) return;
     const { total } = totales();
     const cfg = DB.g.config;
     const medios = cfg.medios.filter(m => m.activo !== false);
@@ -376,7 +438,10 @@ const POS = (() => {
       if (!row) return;
       const i = +row.dataset.i, it = cart.items[i];
       const paso = it.porPeso ? 0.1 : 1;
-      if (e.target.closest('[data-inc]')) it.cant = round3(it.cant + paso);
+      if (e.target.closest('[data-inc]')) {
+        if (!(await hayStock(it.pid && DB.prod(it.pid), round3(it.cant + paso), i))) return;
+        it.cant = round3(it.cant + paso);
+      }
       else if (e.target.closest('[data-dec]')) { it.cant = round3(it.cant - paso); if (it.cant <= 0) cart.items.splice(i, 1); }
       else if (e.target.closest('[data-del]')) cart.items.splice(i, 1);
       else if (e.target.closest('[data-precio]')) {
@@ -388,11 +453,13 @@ const POS = (() => {
       } else return;
       persist(); renderCart();
     });
-    $('#pos-cart', v).addEventListener('change', e => {
+    $('#pos-cart', v).addEventListener('change', async e => {
       const inp = e.target.closest('[data-q]');
       if (!inp) return;
       const i = +inp.closest('[data-i]').dataset.i;
       const c = round3(num(inp.value));
+      const it = cart.items[i];
+      if (c > it.cant && !(await hayStock(it.pid && DB.prod(it.pid), c, i))) { renderCart(); return; }
       if (c > 0) cart.items[i].cant = c; else cart.items.splice(i, 1);
       persist(); renderCart();
     });
@@ -439,14 +506,20 @@ const POS = (() => {
     cart.clienteId = clienteId;
     cart.pedidoId = pedidoId;
     if (clienteId) { const c = DB.cliente(clienteId); if (c) cart.lista = c.lista || 0; }
-    const faltan = [];
+    const faltan = [], ajustados = [];
     items.forEach(({ pid, cant }) => {
       const p = DB.prod(pid);
       if (!p) { faltan.push(pid); return; }
-      cart.items.push({ pid: p.id, codigo: p.codigo, nombre: p.nombre, cant, precio: DB.precio(p, cart.lista), costo: p.costo || 0, rubro: p.rubro, porPeso: !!p.porPeso });
+      let c = cant;
+      if (!DB.g.config.stock.permitirSinStock) {
+        const disp = disponible(p);
+        if (c > disp) { ajustados.push(`${p.nombre} (${disp > 0 ? 'quedan ' + fmtN(disp, 3) : 'sin stock'})`); c = Math.max(0, disp); }
+      }
+      if (c > 0) cart.items.push({ pid: p.id, codigo: p.codigo, nombre: p.nombre, cant: c, precio: DB.precio(p, cart.lista), costo: p.costo || 0, rubro: p.rubro, porPeso: !!p.porPeso });
     });
     persist();
     App.go('pos');
+    if (ajustados.length) setTimeout(() => UI.toast('Ajustado al stock disponible: ' + ajustados.join(' · '), 'warn', 7000), 300);
     return faltan;
   }
 
