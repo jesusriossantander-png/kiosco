@@ -163,7 +163,7 @@ const C = (() => {
 
   function categorias() {
     app.innerHTML = `<div class="t-head"><form class="t-bar" id="h-search" style="padding-top:12px"><label class="t-search">${I('search')}<input name="q" placeholder="¿Qué estás buscando?" autocomplete="off" enterkeyhint="search"></label></form></div>
-      <div class="t-white" style="padding:12px 14px;font-size:13px;border-bottom:1px solid var(--line)">Explorá por categoría</div>
+      <div class="t-white" style="padding:12px 14px;font-size:12px;border-bottom:1px solid var(--line)">Explorá por categoría</div>
       <main class="t-main" style="padding-top:0"><div class="t-catgrid">
         <a class="t-cat" href="#/lista?f=ofertas"><div class="sq"><img src="${Tienda.img3d('🏷️')}" alt=""></div><span>Ofertas</span></a>
         ${cat.rubros.map(r => `<a class="t-cat" href="#/lista?r=${encodeURIComponent(r)}"><div class="sq"><img src="${Tienda.img3d(Catalogo.EMO[r] || '📦')}" alt=""></div><span>${esc(r)}</span></a>`).join('')}
@@ -174,7 +174,7 @@ const C = (() => {
   function ahorros() {
     const a = cat.app || {}, promos = a.promosPago || [];
     const p0 = promos[0];
-    app.innerHTML = cabecera() + `<div class="t-white" style="padding:12px 14px;font-size:15px;border-bottom:1px solid var(--line)">Ahorros</div><main class="t-main">
+    app.innerHTML = cabecera() + `<div class="t-white" style="padding:12px 14px;font-size:13.5px;border-bottom:1px solid var(--line)">Ahorros</div><main class="t-main">
       ${p0 ? `<div class="t-paybar"><b>${esc((p0.titulo.match(/\d+%/) || [''])[0] || '💳')}</b><span><small>${esc(p0.dia)}</small>${esc(p0.titulo.replace(/\d+%/, '').trim())}<br>${esc(p0.sub)}</span><em>Ver promos</em></div>` : ''}
       ${a.banners && a.banners.length ? `<div style="margin-top:18px">${Tienda.carousel(a.banners)}</div>` : ''}
       ${ofertas().length ? `<section class="t-sec">${secH('Imperdibles de la semana', '¡Aprovechalos!', '#/lista?f=ofertas')}${fila(ofertas().slice(0, 10))}</section>
@@ -357,7 +357,7 @@ const C = (() => {
   function cuenta() {
     const pf = perfil(), n = cat.negocio;
     const wa = Catalogo.waNumero(n.whatsapp);
-    app.innerHTML = `<div class="t-white" style="padding:calc(14px + env(safe-area-inset-top)) 16px 14px;font-size:19px;font-weight:500">Mi cuenta</div><main class="t-main" style="padding-top:0">
+    app.innerHTML = `<div class="t-white" style="padding:calc(14px + env(safe-area-inset-top)) 16px 14px;font-size:17px;font-weight:500">Mi cuenta</div><main class="t-main" style="padding-top:0">
       <div class="ac-hello"><div class="top"><span class="av">${pf.nombre ? esc(pf.nombre.trim()[0].toUpperCase()) : '👋'}</span><div><b>¡Hola${pf.nombre ? ', ' + esc(pf.nombre.split(' ')[0].toUpperCase()) : ''}!</b><span>Podés gestionar tus datos y pedidos desde acá.</span></div></div>
         <div class="ac-promo"><img src="${Tienda.img3d('🎁')}" alt=""><div><b>Compartí la app<br>con tus vecinos</b><button id="ac-share">COMPARTIR</button></div></div></div>
       <div class="t-acc"><h3>Mi perfil</h3>
